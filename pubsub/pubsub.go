@@ -58,7 +58,7 @@ func (p *publisher) SubscriberTopic(topic string) *Subscriber {
 }
 
 //退出订阅
-func (p *publisher) Exict(sub *Subscriber) {
+func (p *publisher) Exit(sub *Subscriber) {
 	p.m.Lock()
 	defer p.m.Unlock()
 	if subSets, ok := p.subscribers[sub.topic]; ok {
