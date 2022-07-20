@@ -13,7 +13,7 @@ func TestMerge(t *testing.T) {
 		MergeThreshold: 10,
 		MergeTime:      200,
 		TimeOut:        1000,
-		ctx:            ctx,
+		Ctx:            ctx,
 	})
 	for j := 0; j < 100; j++ {
 		go func(j int) {
