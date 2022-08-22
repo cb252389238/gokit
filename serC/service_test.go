@@ -14,11 +14,11 @@ func TestNew(t *testing.T) {
 	ctx, _ := context.WithCancel(context.Background())
 	etcds := []string{"127.0.0.1:2379"}
 	c, err := New(etcds, "/test-01", "127.0.0.1", 5, ctx)
-	fmt.Println(c.WatchService("/test"))
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
+	fmt.Println(c.WatchService("/test"))
 	go func() {
 		for val := range c.KeepAliveChan {
 			fmt.Println("续租成功:", val)
