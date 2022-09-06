@@ -1,4 +1,8 @@
 # gokit
-Golang Project Toolbox
 
-Golang 各种工具包,想到什么就添加什么，平时项目中遇到感觉有用的就封装一下。
+感谢 JetTrains支持给与的支持
+https://jb.gg/OpenSourceSupport
+
+- Golang Project Toolbox
+
+- Golang 各种工具包,想到什么就添加什么，平时项目中遇到感觉有用的就封装一下。
