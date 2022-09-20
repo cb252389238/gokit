@@ -1,0 +1,4 @@
+{"Time":"2022-09-20 16:53:46","Level":"INFO","Path":"D:/project/gokit/frame/internal/monitor/monitor.go:36","Name":"[NONE]","Content":"监控协程退出"}
+{"Time":"2022-09-20 16:53:46","Level":"INFO","Path":"D:/project/gokit/frame/main.go:20","Name":"[NONE]","Content":"立刻退出程序。信号:[interrupt]"}
+{"Time":"2022-09-20 17:03:35","Level":"INFO","Path":"D:/project/gokit/frame/internal/monitor/monitor.go:36","Name":"[NONE]","Content":"监控协程退出"}
+{"Time":"2022-09-20 17:03:35","Level":"INFO","Path":"D:/project/gokit/frame/main.go:20","Name":"[NONE]","Content":"立刻退出程序。信号:[interrupt]"}

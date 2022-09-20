@@ -1,0 +1,21 @@
+ENV: test   #当前环境 开发dev 测试test 生产pro
+Debug: true #是否开启debug模式
+Websocket:
+  Port: 9001
+Http:
+  Port: 9002
+Mysql:
+  -
+    Host: 127.0.0.1
+    Port: 3306
+    User: root
+    Password: root
+    Database: dev_daofeng
+    Name: default
+Redis:
+  -
+    Host: 127.0.0.1
+    Port: 6379
+    Password:
+    Database: 3
+    Name: default

@@ -1,0 +1,28 @@
+ENV: test   #当前环境 开发dev 测试test 生产pro
+Debug: true #是否开启debug模式
+WebHookToken: b6327238bef727cd371c60f65ff92a3b9f59811df725c3e05037efafb6e83df9
+WebHookSecret: SEC0dafab29cd02a320917c62df8938c624eceae5e62aa7a8a612f14618b0e8929a
+AuthCodeKey: abc112312421241
+SubscribeChannelInterior: metaServerInteriorChannel #内部转发频道
+SubscribeChannelExterior: metaServerMessageChannel #外部频道
+TaskResultQueue: metaServerTaskResultQueue #任务结果通知队列
+RobotSer: true
+MessageType: 1 #1明文json格式 2二进制
+RateNum: 30 #请求频次限制 每秒不超过30次
+Websocket:
+  Port: 9002
+Mysql:
+  -
+    Host: 127.0.0.1
+    Port: 3306
+    User: root
+    Password: root
+    Database: dev_daofeng
+    Name: default
+Redis:
+  -
+    Host: 127.0.0.1
+    Port: 6379
+    Password:
+    Database: 3
+    Name: default
