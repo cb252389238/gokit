@@ -1,26 +1,21 @@
 package http
 
 import (
-	//	"fmt"
-	"io/ioutil"
+	"io"
+
 	"net/http"
 	"net/url"
 	"strings"
 )
 
-//func main() {
-//	res, _ := HttpDo("POST", "http://localhost/test/20190228/index.php", "id=123&name=chengbang", map[string]string{"session_id": "123", "token": "456"})
-//	fmt.Println(res)
-//}
-
 func HttpGet(urlStr string) (string, error) {
-
 	resp, err := http.Get(urlStr)
 	if err != nil {
 		return "", err
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}
@@ -28,13 +23,12 @@ func HttpGet(urlStr string) (string, error) {
 }
 
 func HttpPost(urlStr string, data string) (string, error) {
-	//	data = "name=chengbang&age=28&sex=男"
 	resp, err := http.Post(urlStr, "application/x-www-form-urlencoded", strings.NewReader(data))
 	if err != nil {
 		return "", err
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}
@@ -51,7 +45,7 @@ func HttpPostForm(urlStr string, data map[string]string) (string, error) {
 		return "", err
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}
@@ -75,7 +69,7 @@ func HttpDo(method string, urlStr string, data string, cookies map[string]string
 		return "", err
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}
