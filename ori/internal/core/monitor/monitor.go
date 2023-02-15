@@ -1,7 +1,6 @@
 package monitor
 
 import (
-	"fmt"
 	"ori/internal/core/log"
 	"ori/internal/core/oriEngine"
 	"ori/util/common"
@@ -38,16 +37,16 @@ func Monitor(ctx *oriEngine.OriEngine) {
 			diskPercent := common.GetDiskPercent() //硬盘使用率
 			goroutineNum := runtime.NumGoroutine() //开启协程数量
 			if fluctuateMargin("cpuPercent", cpuPercent) {
-				fmt.Printf("CPU使用率:%.2f", cpuPercent)
+				log.LogInfo("CPU使用率:%.2f", cpuPercent)
 			}
 			if fluctuateMargin("memPercent", memPercent) {
-				fmt.Printf("内存使用率:%.2f", memPercent)
+				log.LogInfo("内存使用率:%.2f", memPercent)
 			}
 			if fluctuateMargin("diskPercent", diskPercent) {
-				fmt.Printf("硬盘使用率:%.2f", diskPercent)
+				log.LogInfo("硬盘使用率:%.2f", diskPercent)
 			}
 			if fluctuateMargin("goroutineNum", goroutineNum) {
-				fmt.Printf("协程数量:%d", goroutineNum)
+				log.LogInfo("协程数量:%d", goroutineNum)
 			}
 		}
 	}

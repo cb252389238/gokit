@@ -36,8 +36,8 @@ func NewOriEngine() *OriEngine {
 		L:          &sync.RWMutex{},
 		Context:    cancel,
 		Cancel:     cancelFunc,
-		Mysql:      database.NewDb(),
-		Redis:      redis.NewRedis(),
+		//Mysql:      database.NewDb(),
+		//Redis:      redis.NewRedis(),
 		Pool: pool.NewPool(
 			func() (interface{}, error) {
 				return 1, nil
@@ -49,8 +49,8 @@ func NewOriEngine() *OriEngine {
 			100,
 			1000,
 		),
-		Factory: factory.New(),
-		Log:     log.NewLog(),
+		//Factory: factory.New(),
+		Log: log.NewLog(),
 	}
 	return ctx
 }

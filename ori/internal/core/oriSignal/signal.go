@@ -17,11 +17,11 @@ func listen(engine *oriEngine.OriEngine, s os.Signal) {
 		os.Exit(0)
 	case SIGUSR1: //优雅关闭，处理完所有连接退出 kill -USR1 [PID]
 		log.LogInfo("优雅退出程序。信号:[%s]", s.String())
-		engine.WsSignal <- SIGUSR1
+		//engine.WsSignal <- SIGUSR1
 		engine.HttpSignal <- SIGUSR1
 	case SIGUSR2: //平滑重启信号 kill -USR2 [PID]
 		log.LogInfo("平滑重启程序。信号:[%s]", s.String())
-		engine.WsSignal <- SIGUSR2
+		//engine.WsSignal <- SIGUSR2
 		engine.HttpSignal <- SIGUSR2
 	default:
 		log.LogInfo("未定义信号忽略！信号:[%s]", s.String())

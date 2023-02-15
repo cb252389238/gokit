@@ -29,8 +29,9 @@ var (
 func handle(oriEngine *oriEngine.OriEngine) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		wg.Add(1)
-		fmt.Println("111")
 		defer wg.Done()
+		time.Sleep(time.Second * 20)
+		fmt.Println("index")
 	}
 }
 
