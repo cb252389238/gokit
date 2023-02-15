@@ -1,9 +1,9 @@
-package auth
+package pool
 
 import (
 	"errors"
 	"fmt"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"sync"
 	"time"
 	//"reflect"
@@ -129,7 +129,7 @@ func (c *channelPool) Get() (interface{}, error) {
 			return wrapConn.conn, nil
 		default:
 			c.mu.Lock()
-			log.Printf("openConn %v %v", c.openingConns, c.maxActive)
+			log.Debugf("openConn %v %v", c.openingConns, c.maxActive)
 			if c.openingConns >= c.maxActive {
 				req := make(chan connReq, 1)
 				c.connReqs = append(c.connReqs, req)
