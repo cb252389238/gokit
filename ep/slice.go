@@ -14,3 +14,14 @@ func IsExistItem(slice interface{}, value interface{}) bool {
 	}
 	return false
 }
+
+func InArray[T comparable](val T, arr []T) bool {
+	ok := false
+	for _, v := range arr {
+		if v == val {
+			ok = true
+			break
+		}
+	}
+	return ok
+}
