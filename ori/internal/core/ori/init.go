@@ -2,12 +2,11 @@ package ori
 
 import (
 	"fmt"
-	"ori/app/http"
-	"ori/internal"
 	"ori/internal/core/config"
 	"ori/internal/core/monitor"
 	"ori/internal/core/oriEngine"
 	"ori/internal/core/oriSignal"
+	"ori/internal/service"
 	"ori/typedef"
 	"time"
 )
@@ -28,10 +27,7 @@ func Start() {
 			<-t.C
 		}
 	}()
-	engine.Wg.Add(1)
-	go internal.Run(engine) //核心逻辑
-	engine.Wg.Add(1)
-	go http.Run(engine)
+	service.Run(engine) //服务启动
 	fmt.Println(typedef.Ico)
 	oriSignal.Notify(engine) //监听信号
 }
