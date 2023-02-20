@@ -3,7 +3,7 @@ package monitor
 import (
 	"ori/internal/core/log"
 	"ori/internal/core/oriEngine"
-	"ori/util/common"
+	"ori/util/tools"
 	"runtime"
 	"sync"
 	"time"
@@ -32,9 +32,9 @@ func Monitor(ctx *oriEngine.OriEngine) {
 			log.LogInfo("监控服务退出")
 			return
 		case <-ticker.C:
-			cpuPercent := common.GetCpuPercent()   //cpu使用率
-			memPercent := common.GetMemPercent()   //内存使用率
-			diskPercent := common.GetDiskPercent() //硬盘使用率
+			cpuPercent := tools.GetCpuPercent()    //cpu使用率
+			memPercent := tools.GetMemPercent()    //内存使用率
+			diskPercent := tools.GetDiskPercent()  //硬盘使用率
 			goroutineNum := runtime.NumGoroutine() //开启协程数量
 			if fluctuateMargin("cpuPercent", cpuPercent) {
 				log.LogInfo("CPU使用率:%.2f", cpuPercent)

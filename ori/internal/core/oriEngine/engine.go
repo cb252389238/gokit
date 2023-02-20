@@ -2,6 +2,7 @@ package oriEngine
 
 import (
 	"context"
+	"ori/internal/core/cache"
 	"ori/internal/core/database"
 	"ori/internal/core/log"
 	"ori/internal/core/pool"
@@ -24,6 +25,7 @@ type OriEngine struct {
 	Pool       pool.Pool        //通用连接池
 	Factory    *factory.Factory //工厂类
 	Log        *log.LocalLogger
+	Cache      *cache.Cache
 }
 
 func NewOriEngine() *OriEngine {
@@ -50,7 +52,8 @@ func NewOriEngine() *OriEngine {
 			1000,
 		),
 		//Factory: factory.New(),
-		Log: log.NewLog(),
+		Log:   log.NewLog(),
+		Cache: cache.New(),
 	}
 	return ctx
 }

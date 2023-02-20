@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"ori/internal/core/config"
 	"ori/internal/core/oriCommon"
-	"ori/util/common"
+	"ori/util/tools"
 	"strings"
 	"sync"
 )
@@ -19,7 +19,7 @@ func NewLog() *LocalLogger {
 		allConfig := config.GetHotConf()
 		path := oriCommon.GetRootPath()
 		dir := path + allConfig.LogPath
-		_, err := common.MakeDir(dir)
+		_, err := tools.MakeDir(dir)
 		if err != nil {
 			panic(fmt.Sprintf("创建日志目录失败 path:%s", dir))
 		}

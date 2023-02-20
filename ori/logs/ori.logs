@@ -35,3 +35,12 @@
 {"Time":"2023-02-20 11:25:18","Level":"INFO","Path":"D:/project/gokit/ori/internal/core/monitor/monitor.go:32","Name":"[NONE]","Content":"监控服务退出"}
 {"Time":"2023-02-20 11:25:18","Level":"INFO","Path":"D:/project/gokit/ori/app/http/service.go:86","Name":"[NONE]","Content":"http服务退出"}
 {"Time":"2023-02-20 11:25:18","Level":"INFO","Path":"D:/project/gokit/ori/internal/core/oriSignal/signal.go:16","Name":"[NONE]","Content":"立刻退出程序。信号:[interrupt]"}
+{"Time":"2023-02-20 11:44:07","Level":"INFO","Path":"D:/project/gokit/ori/app/http/service.go:66","Name":"[NONE]","Content":"正常启动-[监听信号]"}
+{"Time":"2023-02-20 11:44:09","Level":"INFO","Path":"D:/project/gokit/ori/internal/core/monitor/monitor.go:32","Name":"[NONE]","Content":"监控服务退出"}
+{"Time":"2023-02-20 11:44:09","Level":"INFO","Path":"D:/project/gokit/ori/app/http/service.go:86","Name":"[NONE]","Content":"http服务退出"}
+{"Time":"2023-02-20 11:44:09","Level":"INFO","Path":"D:/project/gokit/ori/internal/core/oriSignal/signal.go:16","Name":"[NONE]","Content":"立刻退出程序。信号:[interrupt]"}
+{"Time":"2023-02-20 13:52:44","Level":"INFO","Path":"D:/project/gokit/ori/app/http/service.go:66","Name":"[NONE]","Content":"正常启动-[监听信号]"}
+{"Time":"2023-02-20 13:52:47","Level":"INFO","Path":"D:/project/gokit/ori/app/http/service.go:86","Name":"[NONE]","Content":"http服务退出"}
+{"Time":"2023-02-20 13:52:48","Level":"INFO","Path":"D:/project/gokit/ori/internal/core/monitor/monitor.go:43","Name":"[NONE]","Content":"内存使用率:68.00"}
+{"Time":"2023-02-20 13:52:48","Level":"INFO","Path":"D:/project/gokit/ori/internal/core/monitor/monitor.go:32","Name":"[NONE]","Content":"监控服务退出"}
+{"Time":"2023-02-20 13:52:48","Level":"INFO","Path":"D:/project/gokit/ori/internal/core/oriSignal/signal.go:16","Name":"[NONE]","Content":"立刻退出程序。信号:[interrupt]"}
