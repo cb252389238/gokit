@@ -2,7 +2,7 @@ package config
 
 import (
 	"log"
-	"ori/internal/core/oriCommon"
+	"ori/internal/core/oriTools"
 	"os"
 	"time"
 
@@ -15,7 +15,7 @@ var (
 )
 
 func init() {
-	configPath = oriCommon.GetRootPath()
+	configPath = oriTools.GetRootPath()
 }
 
 func Load() {
