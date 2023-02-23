@@ -1,6 +1,6 @@
 # gokit
 
-感谢 JetTrains支持给与的支持
+感谢 jetbrains支持给与的支持
 https://jb.gg/OpenSourceSupport
 
 - Golang Project Toolbox
