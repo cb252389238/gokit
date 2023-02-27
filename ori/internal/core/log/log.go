@@ -22,31 +22,31 @@ func NewLog() *LocalLogger {
 		if err != nil {
 			panic(fmt.Sprintf("创建日志目录失败 path:%s", dir))
 		}
-		filename := strings.Replace(dir+"/"+allConfig.LogFileName+".logs", "\\", "/", -1)
-		loggerJson := `{
-    "TimeFormat": "2006-01-02 15:04:05",
-    "Format": "json",
-    "Console": {
-        "level": "` + allConfig.LogLevel + `",
-        "color": true
-    },
-    "File": {
-        "filename": "` + filename + `",
-        "level": "` + allConfig.LogLevel + `",
-        "daily": true,
-        "maxlines": 100000,
-        "maxsize": 10,
-        "maxdays": -1,
-        "append": true,
-        "permit": "0660"
-    }
-}`
-		err = SetLogger(loggerJson)
+		filename := strings.Replace(dir+"/"+allConfig.LogFileName, "\\", "/", -1)
+		logConf := &logConfig{
+			TimeFormat: "2006-01-02 15:04:05",
+			Console: &consoleLogger{
+				Level:    allConfig.LogLevel, //控制台日志等级
+				Colorful: false,              //是否输出颜色
+			},
+			File: &fileLogger{
+				Filename:   filename + ".log",
+				Append:     true,   //是否日志追加
+				MaxLines:   100000, //日志最大行数
+				MaxSize:    10,
+				Daily:      true, //是否按天分割
+				MaxDays:    -1,   //日志文件最大有效期
+				Level:      allConfig.LogLevel,
+				PermitMask: "0660", //权限
+			},
+			Conn:   nil,
+			Format: "json", //日志格式
+		}
+		err = SetLogger(logConf) //设置配置
 		if err != nil {
 			panic(err)
 		}
-		OriLogger = New()
-
+		OriLogger = New() //实例化
 	})
 	return OriLogger
 }

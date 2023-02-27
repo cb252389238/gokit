@@ -3,7 +3,6 @@ package log
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"runtime"
 	"strings"
@@ -341,54 +340,28 @@ func SetLogPathTrim(trimPath string) {
 }
 
 // param 可以是log配置文件名，也可以是log配置内容,默认DEBUG输出到控制台
-func SetLogger(param ...string) error {
-	if 0 == len(param) {
+func SetLogger(logConf *logConfig) error {
+	if logConf == nil {
 		//默认只输出到控制台
 		defaultLogger.SetLogger(AdapterConsole)
 		return nil
 	}
-
-	c := param[0]
-	conf := new(logConfig)
-	err := json.Unmarshal([]byte(c), conf)
-	if err != nil { //不是json，就认为是配置文件，如果都不是，打印日志，然后退出
-		// Open the configuration file
-		fd, err := os.Open(c)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Could not open %s for configure: %s\n", c, err)
-			os.Exit(1)
-			return err
-		}
-
-		contents, err := ioutil.ReadAll(fd)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Could not read %s: %s\n", c, err)
-			os.Exit(1)
-			return err
-		}
-		err = json.Unmarshal(contents, conf)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Could not Unmarshal %s: %s\n", contents, err)
-			os.Exit(1)
-			return err
-		}
+	if logConf.Format != "" {
+		defaultLogger.format = logConf.Format
 	}
-	if conf.Format != "" {
-		defaultLogger.format = conf.Format
+	if logConf.TimeFormat != "" {
+		defaultLogger.timeFormat = logConf.TimeFormat
 	}
-	if conf.TimeFormat != "" {
-		defaultLogger.timeFormat = conf.TimeFormat
-	}
-	if conf.Console != nil {
-		console, _ := json.Marshal(conf.Console)
+	if logConf.Console != nil {
+		console, _ := json.Marshal(logConf.Console)
 		defaultLogger.SetLogger(AdapterConsole, string(console))
 	}
-	if conf.File != nil {
-		file, _ := json.Marshal(conf.File)
+	if logConf.File != nil {
+		file, _ := json.Marshal(logConf.File)
 		defaultLogger.SetLogger(AdapterFile, string(file))
 	}
-	if conf.Conn != nil {
-		conn, _ := json.Marshal(conf.Conn)
+	if logConf.Conn != nil {
+		conn, _ := json.Marshal(logConf.Conn)
 		defaultLogger.SetLogger(AdapterConn, string(conn))
 	}
 	return nil
