@@ -40,6 +40,9 @@ func (r *MysqlSets) Key(key ...string) *gorm.DB {
 }
 
 func NewDb() *MysqlSets {
+	if !config.GetHotConf().Services.SQL_SERVER {
+		return nil
+	}
 	once.Do(func() {
 		conf := config.GetHotConf()
 		//载入mysql集合

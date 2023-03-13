@@ -1,18 +1,41 @@
+APP: ori #项目名称
 ENV: test   #当前环境 开发dev 测试test 生产pro
 Debug: true #是否开启debug模式
 LogFileName: ori #日志文件名称
 LogPath: logs #日志文件目录
 LogLevel: TRAC #日志等级
+StatusReportHour: 8 #程序状态报告时间 24小时制
+Services:
+  CONFIG_HOT_UPDATE_SERVER: true #配置热更新
+  MONITOR_SERVER: true #监控服务
+  SQL_SERVER: false #数据库
+  REDIS_SERVER: false #redis服务
+  STATUS_REPORT_SERVER: false #状态报告服务
+  HTTP_SERVER: false #http服务
+  WEBSOCKET_SERVER: false #websocket服务
+Monitor: #监控参数
+  MAX_CPU_PERCENT: 50 #cpu报警阈值 50%
+  CPU_FLUCTUATE: 5 #CPU阈值波动
+  MAX_MEM_PERCENT: 50 #内存报警阈值
+  MEM_FLUCTUATE: 5 #内存阈值波动
+  MAX_DISK_PERCENT: 50 #硬盘使用阈值
+  DISK_FLUCTUATE: 5 #硬盘阈值波动
+  MAX_GOROUTINE_NUM: 1000 #协程数量阈值
+  GOROUTINE_FLUCTUATE: 20 #协程阈值波动
+  MAX_CONCURRENCY_NUM: 200 #并发报警阈值
+  CONCURRENCY_FLUCTUATE: 20 #并发阈值波动
+WebHookToken: 123 #钉钉通知token env=pro才会发送钉钉通知
+WebHookSecret: 234 #钉钉通知 Secret
 Websocket:
-  Port: 9001
-Http:
   Port: 9002
+Http:
+  Port: 9001
 Mysql:
   -
-    Host: 127.0.0.1
+    Host: 192.168.22.68
     Port: 3306
     User: root
-    Password: root
+    Password: 123456789
     Database: dev_daofeng
     Name: default
 Redis:

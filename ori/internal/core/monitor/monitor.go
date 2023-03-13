@@ -1,9 +1,14 @@
 package monitor
 
 import (
+	"fmt"
+	"github.com/blinkbean/dingtalk"
+	"ori/internal/core/config"
 	"ori/internal/core/log"
 	"ori/internal/core/oriEngine"
+	"ori/internal/core/oriTools"
 	"runtime"
+	"strings"
 	"sync"
 	"time"
 )
@@ -13,14 +18,11 @@ var (
 	monitorLock      sync.Mutex
 )
 
-const (
-	MAX_CPU_PERCENT     = 60   //cpu最大使用率
-	MAX_MEM_PERCENT     = 60   //内存最大使用率
-	MAX_DISK_PERCENT    = 70   //硬盘最大使用率
-	MAX_GOROUTINE_NUM   = 3000 //协程最大数量
-	PERCENT_FLUCTUATE   = 5    //波动百分比 超过阈值则进行通知，在范围内不通知
-	GOROUTINE_FLUCTUATE = 500  //协程数量波动正常范围阈值
-)
+func SendNotice(message string) {
+	webHookMsgChan <- webHookMsgTextData{
+		Content: message,
+	}
+}
 
 func Monitor(ctx *oriEngine.OriEngine) {
 	defer ctx.Wg.Done()
@@ -30,23 +32,47 @@ func Monitor(ctx *oriEngine.OriEngine) {
 		case <-ctx.Context.Done():
 			log.LogInfo("监控服务退出")
 			return
+		case data := <-webHookMsgChan:
+			ip := oriTools.GetLoaclIp()
+			allConfig := config.GetHotConf()
+			data.Content = fmt.Sprintf("【%s】[ip:%s]\r\n%s", allConfig.APP, ip, data.Content)
+			if strings.ToUpper(allConfig.ENV) == "PRO" {
+				//生产环境
+				ctx.WebHook.SendTextMessage(data.Content, dingtalk.WithAtAll())
+			} else {
+				log.LogInfo("%+v", data)
+			}
 		case <-ticker.C:
 			cpuPercent := GetCpuPercent()          //cpu使用率
 			memPercent := GetMemPercent()          //内存使用率
 			diskPercent := GetDiskPercent()        //硬盘使用率
 			goroutineNum := runtime.NumGoroutine() //开启协程数量
 			if fluctuateMargin("cpuPercent", cpuPercent) {
-				log.LogInfo("CPU使用率:%.2f", cpuPercent)
+				SendNotice(fmt.Sprintf("CPU使用率:%.2f", cpuPercent))
 			}
 			if fluctuateMargin("memPercent", memPercent) {
-				log.LogInfo("内存使用率:%.2f", memPercent)
+				SendNotice(fmt.Sprintf("内存使用率:%.2f", memPercent))
 			}
 			if fluctuateMargin("diskPercent", diskPercent) {
-				log.LogInfo("硬盘使用率:%.2f", diskPercent)
+				SendNotice(fmt.Sprintf("硬盘使用率:%.2f", diskPercent))
 			}
 			if fluctuateMargin("goroutineNum", goroutineNum) {
-				log.LogInfo("协程数量:%d", goroutineNum)
+				SendNotice(fmt.Sprintf("协程数量:%d", goroutineNum))
 			}
+			//接口并发数量监控
+			oriTools.ConcurrencyNum.Range(func(key, value interface{}) bool {
+				routerName := key.(string)
+				num := value.(int)
+				if fluctuateMargin(routerName, value) {
+					if routerName == "all" {
+						SendNotice(fmt.Sprintf("服务器总并发数:%d", num))
+					}
+					if routerName != "all" {
+						SendNotice(fmt.Sprintf("接口:[%s]并发数:%d", routerName, num))
+					}
+				}
+				return true
+			})
 		}
 	}
 }
@@ -55,62 +81,77 @@ func Monitor(ctx *oriEngine.OriEngine) {
 func fluctuateMargin(t string, v interface{}) bool {
 	monitorLock.Lock()
 	defer monitorLock.Unlock()
+	monitorConfig := config.GetHotConf().Monitor
 	b := false
 	switch t {
 	case "cpuPercent":
 		if _, ok := monitorFluctuate[t]; ok {
 			cpuPercent := v.(float64)
-			b = cpuPercent > MAX_CPU_PERCENT && (cpuPercent < monitorFluctuate[t+"lower"].(float64) || cpuPercent > monitorFluctuate[t+"upper"].(float64))
+			b = cpuPercent > monitorConfig.MAX_CPU_PERCENT && (cpuPercent < monitorFluctuate[t+"lower"].(float64) || cpuPercent > monitorFluctuate[t+"upper"].(float64))
 			if b {
-				monitorFluctuate[t+"lower"] = v.(float64) - PERCENT_FLUCTUATE
-				monitorFluctuate[t+"upper"] = v.(float64) + PERCENT_FLUCTUATE
+				monitorFluctuate[t+"lower"] = v.(float64) - monitorConfig.CPU_FLUCTUATE
+				monitorFluctuate[t+"upper"] = v.(float64) + monitorConfig.CPU_FLUCTUATE
 			}
 		} else {
-			b = v.(float64) > MAX_CPU_PERCENT
-			monitorFluctuate[t+"lower"] = v.(float64) - PERCENT_FLUCTUATE
-			monitorFluctuate[t+"upper"] = v.(float64) + PERCENT_FLUCTUATE
+			b = v.(float64) > monitorConfig.MAX_CPU_PERCENT
+			monitorFluctuate[t+"lower"] = v.(float64) - monitorConfig.CPU_FLUCTUATE
+			monitorFluctuate[t+"upper"] = v.(float64) + monitorConfig.CPU_FLUCTUATE
 		}
 		monitorFluctuate[t] = v
 	case "memPercent":
 		if _, ok := monitorFluctuate[t]; ok {
 			memPercent := v.(float64)
-			b = memPercent > MAX_MEM_PERCENT && (memPercent < monitorFluctuate[t+"lower"].(float64) || memPercent > monitorFluctuate[t+"upper"].(float64))
+			b = memPercent > monitorConfig.MAX_MEM_PERCENT && (memPercent < monitorFluctuate[t+"lower"].(float64) || memPercent > monitorFluctuate[t+"upper"].(float64))
 			if b {
-				monitorFluctuate[t+"lower"] = v.(float64) - PERCENT_FLUCTUATE
-				monitorFluctuate[t+"upper"] = v.(float64) + PERCENT_FLUCTUATE
+				monitorFluctuate[t+"lower"] = v.(float64) - monitorConfig.MEM_FLUCTUATE
+				monitorFluctuate[t+"upper"] = v.(float64) + monitorConfig.MEM_FLUCTUATE
 			}
 		} else {
-			b = v.(float64) > MAX_MEM_PERCENT
-			monitorFluctuate[t+"lower"] = v.(float64) - PERCENT_FLUCTUATE
-			monitorFluctuate[t+"upper"] = v.(float64) + PERCENT_FLUCTUATE
+			b = v.(float64) > monitorConfig.MAX_MEM_PERCENT
+			monitorFluctuate[t+"lower"] = v.(float64) - monitorConfig.MEM_FLUCTUATE
+			monitorFluctuate[t+"upper"] = v.(float64) + monitorConfig.MEM_FLUCTUATE
 		}
 		monitorFluctuate[t] = v
 	case "diskPercent":
 		if _, ok := monitorFluctuate[t]; ok {
 			diskPercent := v.(float64)
-			b = diskPercent > MAX_DISK_PERCENT && (diskPercent < monitorFluctuate[t+"lower"].(float64) || diskPercent > monitorFluctuate[t+"upper"].(float64))
+			b = diskPercent > monitorConfig.MAX_DISK_PERCENT && (diskPercent < monitorFluctuate[t+"lower"].(float64) || diskPercent > monitorFluctuate[t+"upper"].(float64))
 			if b {
-				monitorFluctuate[t+"lower"] = v.(float64) - PERCENT_FLUCTUATE
-				monitorFluctuate[t+"upper"] = v.(float64) + PERCENT_FLUCTUATE
+				monitorFluctuate[t+"lower"] = v.(float64) - monitorConfig.DISK_FLUCTUATE
+				monitorFluctuate[t+"upper"] = v.(float64) + monitorConfig.DISK_FLUCTUATE
 			}
 		} else {
-			b = v.(float64) > MAX_DISK_PERCENT
-			monitorFluctuate[t+"lower"] = v.(float64) - PERCENT_FLUCTUATE
-			monitorFluctuate[t+"upper"] = v.(float64) + PERCENT_FLUCTUATE
+			b = v.(float64) > monitorConfig.MAX_DISK_PERCENT
+			monitorFluctuate[t+"lower"] = v.(float64) - monitorConfig.DISK_FLUCTUATE
+			monitorFluctuate[t+"upper"] = v.(float64) + monitorConfig.DISK_FLUCTUATE
 		}
 		monitorFluctuate[t] = v
 	case "goroutineNum":
 		if _, ok := monitorFluctuate[t]; ok {
 			goroutineNum := v.(int)
-			b = goroutineNum > MAX_GOROUTINE_NUM && (goroutineNum < monitorFluctuate[t+"lower"].(int) || goroutineNum > monitorFluctuate[t+"upper"].(int))
+			b = goroutineNum > monitorConfig.MAX_GOROUTINE_NUM && (goroutineNum < monitorFluctuate[t+"lower"].(int) || goroutineNum > monitorFluctuate[t+"upper"].(int))
 			if b {
-				monitorFluctuate[t+"lower"] = v.(int) - GOROUTINE_FLUCTUATE
-				monitorFluctuate[t+"upper"] = v.(int) + GOROUTINE_FLUCTUATE
+				monitorFluctuate[t+"lower"] = v.(int) - monitorConfig.GOROUTINE_FLUCTUATE
+				monitorFluctuate[t+"upper"] = v.(int) + monitorConfig.GOROUTINE_FLUCTUATE
 			}
 		} else {
-			b = v.(int) > MAX_GOROUTINE_NUM
-			monitorFluctuate[t+"lower"] = v.(int) - GOROUTINE_FLUCTUATE
-			monitorFluctuate[t+"upper"] = v.(int) + GOROUTINE_FLUCTUATE
+			b = v.(int) > monitorConfig.MAX_GOROUTINE_NUM
+			monitorFluctuate[t+"lower"] = v.(int) - monitorConfig.GOROUTINE_FLUCTUATE
+			monitorFluctuate[t+"upper"] = v.(int) + monitorConfig.GOROUTINE_FLUCTUATE
+		}
+		monitorFluctuate[t] = v
+	default:
+		if _, ok := monitorFluctuate[t]; ok {
+			concurrencyNum := v.(int)
+			b = concurrencyNum > monitorConfig.MAX_CONCURRENCY_NUM && (concurrencyNum < monitorFluctuate[t+"lower"].(int) || concurrencyNum > monitorFluctuate[t+"upper"].(int))
+			if b {
+				monitorFluctuate[t+"lower"] = v.(int) - monitorConfig.CONCURRENCY_FLUCTUATE
+				monitorFluctuate[t+"upper"] = v.(int) + monitorConfig.CONCURRENCY_FLUCTUATE
+			}
+		} else {
+			b = v.(int) > monitorConfig.MAX_CONCURRENCY_NUM
+			monitorFluctuate[t+"lower"] = v.(int) - monitorConfig.CONCURRENCY_FLUCTUATE
+			monitorFluctuate[t+"upper"] = v.(int) + monitorConfig.CONCURRENCY_FLUCTUATE
 		}
 		monitorFluctuate[t] = v
 	}

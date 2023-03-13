@@ -33,6 +33,9 @@ func (r *RedisSets) Key(key ...string) *redis.Client {
 }
 
 func NewRedis() *RedisSets {
+	if !config.GetHotConf().Services.REDIS_SERVER {
+		return nil
+	}
 	once.Do(func() {
 		conf := config.GetHotConf()
 		redisSets := map[string]*redis.Client{}

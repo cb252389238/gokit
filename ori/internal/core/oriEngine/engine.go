@@ -2,7 +2,9 @@ package oriEngine
 
 import (
 	"context"
+	"github.com/blinkbean/dingtalk"
 	"ori/internal/core/cache"
+	"ori/internal/core/config"
 	"ori/internal/core/database"
 	"ori/internal/core/log"
 	"ori/internal/core/pool"
@@ -26,9 +28,11 @@ type OriEngine struct {
 	Factory    *factory.Factory //工厂类
 	Log        *log.LocalLogger
 	Cache      *cache.Cache
+	WebHook    *dingtalk.DingTalk
 }
 
 func NewOriEngine() *OriEngine {
+	webHookCli := dingtalk.InitDingTalkWithSecret(config.GetHotConf().WebHookToken, config.GetHotConf().WebHookSecret)
 	cancel, cancelFunc := context.WithCancel(context.Background())
 	ctx := &OriEngine{
 		Wg:         &sync.WaitGroup{},
@@ -38,8 +42,8 @@ func NewOriEngine() *OriEngine {
 		L:          &sync.RWMutex{},
 		Context:    cancel,
 		Cancel:     cancelFunc,
-		//Mysql:      database.NewDb(),
-		//Redis:      redis.NewRedis(),
+		Mysql:      database.NewDb(),
+		Redis:      redis.NewRedis(),
 		Pool: pool.NewPool(
 			func() (interface{}, error) {
 				return 1, nil
@@ -51,9 +55,10 @@ func NewOriEngine() *OriEngine {
 			100,
 			1000,
 		),
-		//Factory: factory.New(),
-		Log:   log.NewLog(),
-		Cache: cache.New(),
+		Factory: factory.New(),
+		Log:     log.NewLog(),
+		Cache:   cache.New(),
+		WebHook: webHookCli,
 	}
 	return ctx
 }

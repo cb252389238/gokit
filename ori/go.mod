@@ -16,6 +16,7 @@ require (
 )
 
 require (
+	github.com/blinkbean/dingtalk v0.0.0-20210905093040-7d935c0f7e19 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect

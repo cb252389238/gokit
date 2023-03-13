@@ -27,7 +27,7 @@ var (
 			return true
 		},
 	}
-	graceful              = flag.Bool("graceful", false, "listen on fd open 3 (internal use only)")
+	graceful              = flag.Bool("graceful-ws", false, "listen on fd open 3 (internal use only)")
 	listener net.Listener = nil
 	err      error
 	wg       = &sync.WaitGroup{}
@@ -137,7 +137,7 @@ func reload() error {
 	}
 	// 设置传递给子进程的参数（包含 socket 描述符）
 	pid := time.Now().Unix()
-	args := []string{"-graceful", cast.ToString(pid)}
+	args := []string{"-graceful-ws", cast.ToString(pid)}
 	cmd := exec.Command(os.Args[0], args...)
 	cmd.Stdout = os.Stdout         // 标准输出
 	cmd.Stderr = os.Stderr         // 错误输出
