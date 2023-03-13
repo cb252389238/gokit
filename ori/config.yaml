@@ -4,9 +4,9 @@ LogFileName: ori #日志文件名称
 LogPath: logs #日志文件目录
 LogLevel: TRAC #日志等级
 Websocket:
-  Port: 9001
-Http:
   Port: 9002
+Http:
+  Port: 9001
 Mysql:
   -
     Host: 127.0.0.1

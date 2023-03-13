@@ -1,6 +1,7 @@
 package ori
 
 import (
+	"flag"
 	"fmt"
 	"ori/internal/core/config"
 	"ori/internal/core/monitor"
@@ -11,8 +12,15 @@ import (
 	"time"
 )
 
+var (
+	configPath string //配置文件路径
+)
+
 func Start() {
-	config.Load()                      //载入配置文件
+	flag.StringVar(&configPath, "f", "./config.yaml", "-f 配置文件路径")
+	flag.Parse()
+	config.Load(configPath) //载入配置文件
+	//return
 	go config.Listen(10)               //监听配置文件变化
 	engine := oriEngine.NewOriEngine() //初始化项目资源
 	engine.Wg.Add(1)

@@ -1,6 +1,9 @@
 package oriTools
 
-import "os"
+import (
+	"os"
+	"path"
+)
 
 func pathExists(path string) (bool, error) {
 	_, err := os.Stat(path)
@@ -25,4 +28,14 @@ func MakeDir(path string) (string, error) {
 	} else {
 		return "", nil
 	}
+}
+
+// 返回全名，后缀名，文件名
+func FileInfo(file string) (string, string, string) {
+	fullName := path.Base(file)
+	suffix := path.Ext(file)
+	prefix := fullName[0 : len(fullName)-len(suffix)]
+	return fullName,
+		suffix,
+		prefix
 }

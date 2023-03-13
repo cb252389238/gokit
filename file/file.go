@@ -9,6 +9,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"path"
 	"time"
 )
 
@@ -58,7 +59,7 @@ func UploadFile(url string, params map[string]string, nameField, fileName string
 	return content, nil
 }
 
-//文件中换二进制
+// 文件中换二进制
 func File2Bytes(paths string) ([]byte, error) {
 	file, err := os.Open(paths)
 	if err != nil {
@@ -107,5 +108,16 @@ func Copy(srcFile, dstFile string) error {
 				return errors.New("Write to buffer error")
 			}
 		}
+	}
+}
+
+func FileInfo(file string) []string {
+	filenameall := path.Base(file)
+	filesuffix := path.Ext(file)
+	fileprefix := filenameall[0 : len(filenameall)-len(filesuffix)]
+	return []string{
+		filenameall,
+		filesuffix,
+		fileprefix,
 	}
 }

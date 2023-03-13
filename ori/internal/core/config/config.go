@@ -3,33 +3,38 @@ package config
 import (
 	"log"
 	"ori/internal/core/oriTools"
+	"ori/typedef"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/spf13/viper"
 )
 
 var (
-	hotConf    HotConf
-	configPath string
+	hotConf                                    HotConf
+	configPath                                 string
+	configFullName, configSuffix, configPrefix string
+	initialPath                                string
 )
 
-func init() {
-	configPath = oriTools.GetRootPath()
-}
+//func init() {
+//	configPath = oriTools.GetRootPath()
+//}
 
-func Load() {
+func Load(path string) {
 	defer updateFileModifyTime()
-	var conf Config
-	configFile := "config"
-	configFileExt := "yaml"
+	initialPath = path
+	configFullName, configSuffix, configPrefix = oriTools.FileInfo(path)
+	configPath = oriTools.GetRootPath() + strings.Replace(path[:len(path)-len(configFullName)], "./", "", -1)
+	var conf typedef.Config
 	c := viper.New()
-	c.SetConfigName(configFile)
-	c.SetConfigType(configFileExt)
+	c.SetConfigName(configPrefix)
+	c.SetConfigType(configSuffix[1:])
 	c.AddConfigPath(configPath)
 	err := c.ReadInConfig()
 	if err != nil {
-		panic("配置文件载入错误" + configPath + configFile + "." + configFileExt)
+		panic("配置文件载入错误：" + configPath)
 	}
 	err = c.Unmarshal(&conf)
 	if err != nil {
@@ -41,7 +46,7 @@ func Load() {
 }
 
 func Listen(sec time.Duration) {
-	configFile := configPath + "config.yaml"
+	configFile := configPath + configFullName
 	//每隔三秒读取一次配置文件查看是否发生变化
 	ticker := time.NewTicker(time.Second * sec)
 	for _ = range ticker.C {
@@ -55,7 +60,7 @@ func Listen(sec time.Duration) {
 			} else {
 				curModifyTime := fileInfo.ModTime().Unix()
 				if curModifyTime > hotConf.LastModifyTime {
-					Load() //重新载入配置文件
+					Load(initialPath) //重新载入配置文件
 					log.Printf("配置文件发生变化：%+v", hotConf.Conf)
 				}
 			}
@@ -75,7 +80,7 @@ func updateFileModifyTime() {
 /*
 *获取热配置
  */
-func GetHotConf() Config {
+func GetHotConf() typedef.Config {
 	hotConf.L.RLock()
 	defer hotConf.L.RUnlock()
 	conf := hotConf.Conf
