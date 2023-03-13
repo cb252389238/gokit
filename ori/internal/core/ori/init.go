@@ -54,6 +54,6 @@ func Start() {
 
 	service.Run(engine) //自定义服务
 	fmt.Println(typedef.Ico)
-	fmt.Printf("服务【%s】启动完成!]", config.GetHotConf().APP)
+	fmt.Printf("服务【%s】启动完成!]\r\n", config.GetHotConf().APP)
 	oriSignal.Notify(engine) //监听信号
 }
