@@ -28,6 +28,7 @@ func NewLog() *LocalLogger {
 			Console: &consoleLogger{
 				Level:    allConfig.LogLevel, //控制台日志等级
 				Colorful: false,              //是否输出颜色
+				Switch:   true,
 			},
 			File: &fileLogger{
 				Filename:   filename + ".log",

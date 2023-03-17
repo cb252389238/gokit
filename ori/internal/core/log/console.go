@@ -36,6 +36,7 @@ type consoleLogger struct {
 	Level    string `json:"level"`
 	Colorful bool   `json:"color"`
 	LogLevel int
+	Switch   bool
 }
 
 func (c *consoleLogger) Init(jsonConfig string) error {
@@ -79,6 +80,9 @@ func (c *consoleLogger) Destroy() {
 }
 
 func (c *consoleLogger) printlnConsole(when time.Time, msg string) {
+	if !c.Switch {
+		return
+	}
 	c.Lock()
 	defer c.Unlock()
 	os.Stdout.Write(append([]byte(msg), '\n'))
