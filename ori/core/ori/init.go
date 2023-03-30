@@ -15,13 +15,15 @@ import (
 )
 
 var (
-	configPath string //配置文件路径
-	serFlag    string
+	configPath   string //配置文件路径
+	serFlag      string
+	independence bool
 )
 
 func Start() {
 	flag.StringVar(&configPath, "f", "./config.yaml", "-f 配置文件路径")
 	flag.StringVar(&serFlag, "s", "", "-s 服务1,服务2")
+	flag.BoolVar(&independence, "i", false, "-i 是否独立启动，只启动相关服务")
 	if !flag.Parsed() {
 		flag.Parse()
 	}
@@ -47,13 +49,15 @@ func Start() {
 			}
 		}()
 	}
-	if services.HTTP_SERVER {
-		engine.Wg.Add(1)
-		go http.Run(engine)
-	}
-	if services.WEBSOCKET_SERVER {
-		engine.Wg.Add(1)
-		go ws.Run(engine)
+	if !independence {
+		if services.HTTP_SERVER {
+			engine.Wg.Add(1)
+			go http.Run(engine)
+		}
+		if services.WEBSOCKET_SERVER {
+			engine.Wg.Add(1)
+			go ws.Run(engine)
+		}
 	}
 	engine.Wg.Add(1)
 	service.Run(engine, serFlag) //自定义服务
