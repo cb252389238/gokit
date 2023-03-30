@@ -10,7 +10,7 @@ type Config struct {
 	WebHookToken     string        //钉钉token
 	WebHookSecret    string        //钉钉secret
 	Mysql            []Mysql       //数据库
-	Redis            []Redis       //redis
+	Redis            []Redis       //oriRedis
 	Websocket        Websocket     //websocket 服务配置
 	Http             Http          //http
 	Monitor          MonitorConfig //监控

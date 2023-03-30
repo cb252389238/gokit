@@ -2,7 +2,7 @@ package main
 
 import (
 	"log"
-	"ori/internal/core/ori"
+	"ori/core/ori"
 )
 
 func main() {

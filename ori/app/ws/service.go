@@ -10,10 +10,10 @@ import (
 	"github.com/spf13/cast"
 	"net"
 	"net/http"
-	"ori/internal/core/config"
-	"ori/internal/core/log"
-	"ori/internal/core/oriEngine"
-	"ori/internal/core/oriSignal"
+	"ori/core/oriConfig"
+	"ori/core/oriEngine"
+	"ori/core/oriLog"
+	"ori/core/oriSignal"
 	"os"
 	"os/exec"
 	"sync"
@@ -40,7 +40,7 @@ func handle(oriEngine *oriEngine.OriEngine) gin.HandlerFunc {
 		//升级get请求为webSocket协议
 		_, err := upGrader.Upgrade(c.Writer, c.Request, nil)
 		if err != nil {
-			log.LogError("%+v", err)
+			oriLog.LogError("%+v", err)
 			return
 		}
 	}
@@ -54,14 +54,16 @@ func SetupRouter(oriEngine *oriEngine.OriEngine) *gin.Engine {
 
 func Run(oriEngine *oriEngine.OriEngine) {
 	defer oriEngine.Wg.Done()
-	flag.Parse()
-	conf := config.GetHotConf()
+	if !flag.Parsed() {
+		flag.Parse()
+	}
+	conf := oriConfig.GetHotConf()
 	if !conf.Debug {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	engine := SetupRouter(oriEngine)
 	server := &http.Server{
-		Addr:           fmt.Sprintf(":%d", config.GetHotConf().Websocket.Port),
+		Addr:           fmt.Sprintf(":%d", oriConfig.GetHotConf().Websocket.Port),
 		Handler:        engine,
 		ReadTimeout:    5 * time.Second,
 		WriteTimeout:   5 * time.Second,
@@ -69,21 +71,21 @@ func Run(oriEngine *oriEngine.OriEngine) {
 	}
 	if *graceful {
 		// 子进程监听父进程传递的 socket 描述符
-		log.LogInfo("平滑重启-[子进程监听文件描述]")
+		oriLog.LogInfo("平滑重启-[子进程监听文件描述]")
 		// 子进程的 0, 1, 2 是预留给标准输入、标准输出、错误输出
 		f := os.NewFile(3, "")
 		listener, err = net.FileListener(f)
 	} else {
-		log.LogInfo("正常启动-[监听信号]")
+		oriLog.LogInfo("正常启动-[监听信号]")
 		listener, err = net.Listen("tcp", server.Addr)
 	}
 	if err != nil {
-		log.LogError("listener error: %+v", err)
+		oriLog.LogError("listener error: %+v", err)
 		return
 	}
 	go func() {
 		if err := server.Serve(listener); err != nil {
-			log.LogInfo("websocket服务退出,err:%+v", err)
+			oriLog.LogInfo("websocket服务退出,err:%+v", err)
 			return
 		}
 	}()
@@ -94,28 +96,28 @@ func signalHandle(oriEngine *oriEngine.OriEngine, server *http.Server) {
 	for {
 		select {
 		case <-oriEngine.Context.Done():
-			log.LogInfo("websocket服务退出")
+			oriLog.LogInfo("websocket服务退出")
 			return
 		case sig := <-oriEngine.WsSignal:
 			ctx, _ := context.WithCancel(context.Background())
 			switch sig {
 			case oriSignal.SIGUSR1: //优雅退出
 				if err := server.Shutdown(ctx); err != nil {
-					log.LogError(err.Error())
+					oriLog.LogError(err.Error())
 					break
 				}
-				log.LogInfo("websocket服务优雅退出")
+				oriLog.LogInfo("websocket服务优雅退出")
 				wg.Wait() //登陆用户连接全部断开
 				oriEngine.Signal <- syscall.SIGINT
 			case oriSignal.SIGUSR2: //平滑重启
 				err := reload() // 执行热重启函数
 				if err != nil {
-					log.LogError("websocket服务reload error: %v", err)
+					oriLog.LogError("websocket服务reload error: %v", err)
 					break
 				}
-				log.LogInfo("websocket服务热重启")
+				oriLog.LogInfo("websocket服务热重启")
 				if err := server.Shutdown(ctx); err != nil {
-					log.LogError(err.Error())
+					oriLog.LogError(err.Error())
 					break
 				}
 				wg.Wait() //登陆用户连接全部断开
