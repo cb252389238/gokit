@@ -1,0 +1,8 @@
+{"Time":"2023-03-30 13:43:43","Level":"INFO","Path":"D:/project/goori/app/http/service.go:53","Name":"[NONE]","Content":"正常启动-[监听信号]"}
+{"Time":"2023-03-30 13:43:46","Level":"INFO","Path":"D:/project/goori/app/http/service.go:73","Name":"[NONE]","Content":"http服务退出"}
+{"Time":"2023-03-30 13:43:46","Level":"INFO","Path":"D:/project/goori/core/oriMonitor/monitor.go:33","Name":"[NONE]","Content":"监控服务退出"}
+{"Time":"2023-03-30 13:43:46","Level":"INFO","Path":"D:/project/goori/core/oriSignal/signal.go:16","Name":"[NONE]","Content":"立刻退出程序。信号:[interrupt]"}
+{"Time":"2023-03-30 13:51:37","Level":"INFO","Path":"D:/project/gokit/ori/app/http/service.go:53","Name":"[NONE]","Content":"正常启动-[监听信号]"}
+{"Time":"2023-03-30 13:51:47","Level":"INFO","Path":"D:/project/gokit/ori/app/http/service.go:73","Name":"[NONE]","Content":"http服务退出"}
+{"Time":"2023-03-30 13:51:47","Level":"INFO","Path":"D:/project/gokit/ori/core/oriMonitor/monitor.go:33","Name":"[NONE]","Content":"监控服务退出"}
+{"Time":"2023-03-30 13:51:47","Level":"INFO","Path":"D:/project/gokit/ori/core/oriSignal/signal.go:16","Name":"[NONE]","Content":"立刻退出程序。信号:[interrupt]"}
