@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func Md5(str string, len int, isUpper bool) string {
+func GoMd5(str string, len int, isUpper bool) string {
 	h := md5.New()
 	h.Write([]byte(str)) // 需要加密的字符串
 	md5Encode := hex.EncodeToString(h.Sum(nil))
