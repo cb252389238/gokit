@@ -1,6 +1,10 @@
 package oriTools
 
-import "reflect"
+import (
+	"crypto/md5"
+	"encoding/hex"
+	"reflect"
+)
 
 func Empty(val interface{}) bool {
 	v := reflect.ValueOf(val)
@@ -21,4 +25,11 @@ func Empty(val interface{}) bool {
 		return v.IsNil()
 	}
 	return reflect.DeepEqual(val, reflect.Zero(v.Type()).Interface())
+}
+
+func Md5(str string) string {
+	h := md5.New()
+	h.Write([]byte(str)) // 需要加密的字符串
+	md5Encode := hex.EncodeToString(h.Sum(nil))
+	return md5Encode
 }
