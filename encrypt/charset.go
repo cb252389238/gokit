@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"io"
 
 	"io/ioutil"
 
@@ -27,8 +28,8 @@ func Supported(charset string) bool {
 	return getEncoding(charset) != nil
 }
 
-//转换字符编码
-//dstCharset 目标编码   srcCharset 源编码
+// 转换字符编码
+// dstCharset 目标编码   srcCharset 源编码
 func Convert(dstCharset string, srcCharset string, src string) (dst string, err error) {
 	if dstCharset == srcCharset {
 		return src, nil
@@ -36,7 +37,7 @@ func Convert(dstCharset string, srcCharset string, src string) (dst string, err 
 	dst = src
 	if srcCharset != "UTF-8" {
 		if e := getEncoding(srcCharset); e != nil {
-			tmp, err := ioutil.ReadAll(
+			tmp, err := io.ReadAll(
 				transform.NewReader(bytes.NewReader([]byte(src)), e.NewDecoder()),
 			)
 			if err != nil {
@@ -65,13 +66,13 @@ func Convert(dstCharset string, srcCharset string, src string) (dst string, err 
 	return dst, nil
 }
 
-//字符转utf8
-//srcCharset 源编码 src 需要转的字符串
+// 字符转utf8
+// srcCharset 源编码 src 需要转的字符串
 func ToUTF8(srcCharset string, src string) (dst string, err error) {
 	return Convert("UTF-8", srcCharset, src)
 }
 
-//utf8转其他编码
+// utf8转其他编码
 func UTF8To(dstCharset string, src string) (dst string, err error) {
 	return Convert(dstCharset, "UTF-8", src)
 }
