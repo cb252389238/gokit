@@ -17,35 +17,35 @@ type cache struct {
 	hash_mu        sync.RWMutex
 	setItems       map[string]SetItem //集合
 	set_mu         sync.RWMutex
-	deleteCallBack func(string, interface{}) //回调事件  超时或者删除的时候触发回调
-	snowflake      *Node                     //雪花算法生成key
-	timeWheel      *TimeWheel                //时间轮  过期调用
+	deleteCallBack func(string, any) //回调事件  超时或者删除的时候触发回调
+	snowflake      *Node             //雪花算法生成key
+	timeWheel      *TimeWheel        //时间轮  过期调用
 	ctx            context.Context
 	cancel         context.CancelFunc
 }
 
 type KVItem struct {
-	Object     interface{} //存储体
-	Expiration int64       //过期时间
-	CallBack   bool        //是否回调
+	Object     any   //存储体
+	Expiration int64 //过期时间
+	CallBack   bool  //是否回调
 	Key        string
 }
 
 type HASHItem struct {
-	Object     map[string]interface{} //存储体
-	Expiration int64                  //过期时间
-	CallBack   bool                   //是否回调
+	Object     map[string]any //存储体
+	Expiration int64          //过期时间
+	CallBack   bool           //是否回调
 	Key        string
 }
 
 type SetItem struct {
-	Object map[interface{}]Set //存储体
+	Object map[any]Set //存储体
 }
 
 type Set struct {
 	Key          string
 	timeWheelKey string
-	Member       interface{}
+	Member       any
 	Expiration   int64 //过期时间
 	CallBack     bool  //是否回调
 }
@@ -110,7 +110,7 @@ func (c *cache) run() {
 	}
 }
 
-func (c *cache) BindDeleteCallBackFunc(f func(string, interface{})) {
+func (c *cache) BindDeleteCallBackFunc(f func(string, any)) {
 	c.kv_mu.Lock()
 	c.deleteCallBack = f
 	c.kv_mu.Unlock()
@@ -120,7 +120,7 @@ func (c *cache) Stop() {
 	c.cancel()
 }
 
-func (c *cache) Set(k string, v interface{}, d time.Duration, callBack bool) {
+func (c *cache) Set(k string, v any, d time.Duration, callBack bool) {
 	var endTime int64
 	if d > 0 {
 		endTime = time.Now().Add(d).Unix()
@@ -145,7 +145,7 @@ func (c *cache) Set(k string, v interface{}, d time.Duration, callBack bool) {
 	c.timeWheel.AddTimer(d, k, item)
 }
 
-func (c *cache) SetNx(k string, v interface{}, d time.Duration, callBack bool) bool {
+func (c *cache) SetNx(k string, v any, d time.Duration, callBack bool) bool {
 	var endTime int64
 	if d > 0 {
 		endTime = time.Now().Add(d).Unix()
@@ -167,7 +167,7 @@ func (c *cache) SetNx(k string, v interface{}, d time.Duration, callBack bool) b
 	return true
 }
 
-func (c *cache) Get(k string) (interface{}, bool) {
+func (c *cache) Get(k string) (any, bool) {
 	c.kv_mu.RLock()
 	item, ok := c.kvItems[k]
 	c.kv_mu.RUnlock()
@@ -181,7 +181,7 @@ func (c *cache) Get(k string) (interface{}, bool) {
 }
 
 // 获取k-v 过期时间
-func (c *cache) GetEx(k string) (interface{}, time.Time, bool) {
+func (c *cache) GetEx(k string) (any, time.Time, bool) {
 	c.kv_mu.RLock()
 	item, ok := c.kvItems[k]
 	c.kv_mu.RUnlock()
@@ -216,10 +216,10 @@ func (c *cache) kvDelete(k string) (KVItem, bool) {
 }
 
 // 获取k-v所有值
-func (c *cache) Items() map[string]interface{} {
+func (c *cache) Items() map[string]any {
 	c.kv_mu.RLock()
 	defer c.kv_mu.RUnlock()
-	m := make(map[string]interface{}, len(c.kvItems))
+	m := make(map[string]any, len(c.kvItems))
 	now := time.Now().Unix()
 	for k, v := range c.kvItems {
 		if now > v.Expiration {
@@ -254,7 +254,7 @@ func (c *cache) hashDelete(k string) (HASHItem, bool) {
 	return HASHItem{}, false
 }
 
-func (c *cache) HSet(key, field string, val interface{}) {
+func (c *cache) HSet(key, field string, val any) {
 	c.hash_mu.RLock()
 	hash, ok := c.hashItems[key]
 	c.hash_mu.RUnlock()
@@ -265,7 +265,7 @@ func (c *cache) HSet(key, field string, val interface{}) {
 		return
 	}
 	item := HASHItem{
-		Object: map[string]interface{}{field: val},
+		Object: map[string]any{field: val},
 		Key:    key,
 	}
 	c.hash_mu.Lock()
@@ -295,7 +295,7 @@ func (c *cache) HSetEx(key string, d time.Duration, callBack bool) bool {
 	return false
 }
 
-func (c *cache) HMSet(key string, data map[string]interface{}) {
+func (c *cache) HMSet(key string, data map[string]any) {
 	if len(data) == 0 {
 		return
 	}
@@ -321,13 +321,13 @@ func (c *cache) HMSet(key string, data map[string]interface{}) {
 	c.hash_mu.Unlock()
 }
 
-func (c *cache) HSetNx(key, field string, val interface{}) bool {
+func (c *cache) HSetNx(key, field string, val any) bool {
 	c.hash_mu.RLock()
 	hash, ok := c.hashItems[key]
 	c.hash_mu.RUnlock()
 	if !ok {
 		item := HASHItem{
-			Object: map[string]interface{}{field: val},
+			Object: map[string]any{field: val},
 			Key:    key,
 		}
 		c.hash_mu.Lock()
@@ -385,11 +385,11 @@ func (c *cache) HExists(key string, fields ...string) bool {
 	return res
 }
 
-func (c *cache) HGet(key string, fields ...string) map[string]interface{} {
+func (c *cache) HGet(key string, fields ...string) map[string]any {
 	c.hash_mu.RLock()
 	defer c.hash_mu.RUnlock()
 	hash, ok := c.hashItems[key]
-	res := make(map[string]interface{}, len(hash.Object))
+	res := make(map[string]any, len(hash.Object))
 	if !ok {
 		return res
 	}
@@ -401,11 +401,11 @@ func (c *cache) HGet(key string, fields ...string) map[string]interface{} {
 	return res
 }
 
-func (c *cache) HGetAll(key string) map[string]interface{} {
+func (c *cache) HGetAll(key string) map[string]any {
 	c.hash_mu.RLock()
 	defer c.hash_mu.RUnlock()
 	hash, ok := c.hashItems[key]
-	res := make(map[string]interface{}, len(hash.Object))
+	res := make(map[string]any, len(hash.Object))
 	if !ok {
 		return res
 	}
@@ -429,11 +429,11 @@ func (c *cache) HKeys(key string) []string {
 	return res
 }
 
-func (c *cache) HVAls(key string) []interface{} {
+func (c *cache) HVAls(key string) []any {
 	c.hash_mu.RLock()
 	defer c.hash_mu.RUnlock()
 	hash, ok := c.hashItems[key]
-	res := make([]interface{}, 0, len(hash.Object))
+	res := make([]any, 0, len(hash.Object))
 	if !ok {
 		return res
 	}
@@ -443,7 +443,7 @@ func (c *cache) HVAls(key string) []interface{} {
 	return res
 }
 
-func (c *cache) SAdd(key string, d time.Duration, callBack bool, members ...interface{}) {
+func (c *cache) SAdd(key string, d time.Duration, callBack bool, members ...any) {
 	if len(members) == 0 {
 		return
 	}
@@ -477,7 +477,7 @@ func (c *cache) SAdd(key string, d time.Duration, callBack bool, members ...inte
 		return
 	}
 	c.set_mu.Lock()
-	object := map[interface{}]Set{}
+	object := map[any]Set{}
 	for _, member := range members {
 		timeWheelKey := c.snowflake.Generate().String()
 		item := Set{
@@ -494,7 +494,7 @@ func (c *cache) SAdd(key string, d time.Duration, callBack bool, members ...inte
 	c.set_mu.Unlock()
 }
 
-func (c *cache) setDelete(key string, memberKey interface{}) (Set, bool) {
+func (c *cache) setDelete(key string, memberKey any) (Set, bool) {
 	if v, ok := c.setItems[key]; ok {
 		if set, ok := v.Object[memberKey]; ok {
 			delete(v.Object, memberKey)
@@ -516,7 +516,7 @@ func (c *cache) SCard(key string) int {
 	return len(setItem.Object)
 }
 
-func (c *cache) SRem(key string, members ...interface{}) int {
+func (c *cache) SRem(key string, members ...any) int {
 	i := 0
 	if len(members) == 0 {
 		return i
@@ -536,11 +536,11 @@ func (c *cache) SRem(key string, members ...interface{}) int {
 	return i
 }
 
-func (c *cache) SMembers(key string) []interface{} {
+func (c *cache) SMembers(key string) []any {
 	c.set_mu.RLock()
 	defer c.set_mu.RUnlock()
 	setItem, ok := c.setItems[key]
-	members := make([]interface{}, 0, len(setItem.Object))
+	members := make([]any, 0, len(setItem.Object))
 	if !ok {
 		return members
 	}
@@ -550,7 +550,7 @@ func (c *cache) SMembers(key string) []interface{} {
 	return members
 }
 
-func (c *cache) SISMembers(key string, member interface{}) bool {
+func (c *cache) SISMembers(key string, member any) bool {
 	c.set_mu.RLock()
 	defer c.set_mu.RUnlock()
 	setItem, ok := c.setItems[key]

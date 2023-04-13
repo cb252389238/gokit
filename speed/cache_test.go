@@ -27,7 +27,7 @@ func TestSpeedKV(t *testing.T) {
 	fmt.Println(c.Get("key"))             //1 true
 
 	//绑定回调函数，当主动删除缓存或者缓存过期触发  v就是设置的缓存值
-	c.BindDeleteCallBackFunc(func(k string, v interface{}) {
+	c.BindDeleteCallBackFunc(func(k string, v any) {
 		fmt.Println(v)
 		fmt.Println("触发回调函数")
 	})
@@ -43,13 +43,13 @@ func TestSpeedHash(t *testing.T) {
 		fmt.Println(err)
 		return
 	}
-	c.BindDeleteCallBackFunc(func(k string, v interface{}) {
+	c.BindDeleteCallBackFunc(func(k string, v any) {
 		fmt.Println("触发回调函数")
 	})
 	c.HSet("userinfo", "name", "城邦")
 	c.HSet("userinfo", "age", 30)
 	c.HSet("userinfo", "sex", "男")
-	c.HMSet("userinfo", map[string]interface{}{
+	c.HMSet("userinfo", map[string]any{
 		"aaa": 111,
 		"bbb": 222,
 	})
@@ -73,7 +73,7 @@ func TestSpeedSet(t *testing.T) {
 		fmt.Println(err)
 		return
 	}
-	c.BindDeleteCallBackFunc(func(k string, v interface{}) {
+	c.BindDeleteCallBackFunc(func(k string, v any) {
 		fmt.Println(v)
 		fmt.Println("触发回调函数")
 	})
@@ -100,7 +100,7 @@ func TestSpeedSetRem(t *testing.T) {
 		fmt.Println("实例化缓存出错", err)
 		return
 	}
-	cache.BindDeleteCallBackFunc(func(key string, val interface{}) {
+	cache.BindDeleteCallBackFunc(func(key string, val any) {
 		fmt.Printf("回调函数 key:%s,val:%v\r\n", key, val)
 	})
 	cache.Set("name", "城邦", time.Second*5, true)
