@@ -2,7 +2,7 @@ package oriConfig
 
 import (
 	"log"
-	oriTools2 "ori/core/oriTools"
+	"ori/core/oriTools/rest"
 	"ori/typedef"
 	"os"
 	"strings"
@@ -25,8 +25,8 @@ var (
 func Load(path string) {
 	defer updateFileModifyTime()
 	initialPath = path
-	configFullName, configSuffix, configPrefix = oriTools2.FileInfo(path)
-	configPath = oriTools2.GetRootPath() + strings.Replace(path[:len(path)-len(configFullName)], "./", "", -1)
+	configFullName, configSuffix, configPrefix = rest.FileInfo(path)
+	configPath = rest.GetRootPath() + strings.Replace(path[:len(path)-len(configFullName)], "./", "", -1)
 	var conf typedef.Config
 	c := viper.New()
 	c.SetConfigName(configPrefix)

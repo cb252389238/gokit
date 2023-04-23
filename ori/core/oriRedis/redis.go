@@ -19,7 +19,7 @@ type RedisSets struct {
 	l     sync.RWMutex
 }
 
-func (r *RedisSets) Key(key ...string) *redis.Client {
+func (r *RedisSets) Redis(key ...string) *redis.Client {
 	r.l.RLock()
 	defer r.l.RUnlock()
 	name := "default"
@@ -65,5 +65,5 @@ func Redis(keys ...string) *redis.Client {
 	if len(keys) > 0 {
 		key = keys[0]
 	}
-	return rds.Key(key)
+	return rds.Redis(key)
 }

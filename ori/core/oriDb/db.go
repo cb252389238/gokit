@@ -19,7 +19,7 @@ type MysqlSets struct {
 	l     sync.RWMutex
 }
 
-func (r *MysqlSets) Key(key ...string) *gorm.DB {
+func (r *MysqlSets) Db(key ...string) *gorm.DB {
 	r.l.RLock()
 	defer r.l.RUnlock()
 	var name string
@@ -75,5 +75,5 @@ func Db(keys ...string) *gorm.DB {
 	if len(keys) > 0 {
 		key = keys[0]
 	}
-	return db.Key(key)
+	return db.Db(key)
 }

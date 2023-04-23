@@ -9,6 +9,7 @@ import (
 	log2 "ori/core/oriLog"
 	pool2 "ori/core/oriPool"
 	"ori/core/oriRedis"
+	"ori/core/oriTools/cache"
 	"os"
 	"sync"
 )
@@ -21,11 +22,11 @@ type OriEngine struct {
 	L          *sync.RWMutex
 	Context    context.Context
 	Cancel     context.CancelFunc
-	Mysql      *oriDb.MysqlSets
+	Db         *oriDb.MysqlSets
 	Redis      *oriRedis.RedisSets
 	Pool       pool2.Pool //通用连接池
 	Log        *log2.LocalLogger
-	Cache      *cache2.Cache
+	Cache      *cache.Cache
 	WebHook    *dingtalk.DingTalk
 }
 
@@ -40,7 +41,7 @@ func NewOriEngine() *OriEngine {
 		L:          &sync.RWMutex{},
 		Context:    cancel,
 		Cancel:     cancelFunc,
-		Mysql:      oriDb.NewDb(),
+		Db:         oriDb.NewDb(),
 		Redis:      oriRedis.NewRedis(),
 		Pool: pool2.NewPool(
 			func() (interface{}, error) {

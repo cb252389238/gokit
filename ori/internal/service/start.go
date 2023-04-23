@@ -1,8 +1,8 @@
 package service
 
 import (
-	log "github.com/sirupsen/logrus"
 	"ori/core/oriEngine"
+	"ori/core/oriLog"
 	"ori/internal/service/factory"
 	"strings"
 )
@@ -16,7 +16,8 @@ func Run(engine *oriEngine.OriEngine, services string) {
 		for _, serviceName := range servicesSlice {
 			service, err := f.Service(serviceName)
 			if err != nil {
-				log.Error("打印日志错误")
+				oriLog.Error("服务不存在:%s", serviceName)
+				continue
 			}
 			engine.Wg.Add(1)
 			go service.Run(engine)

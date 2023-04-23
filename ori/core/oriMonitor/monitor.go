@@ -6,7 +6,8 @@ import (
 	"ori/core/oriConfig"
 	"ori/core/oriEngine"
 	"ori/core/oriLog"
-	oriTools2 "ori/core/oriTools"
+	oriTools2 "ori/core/oriTools/concurrence"
+	"ori/core/oriTools/rest"
 	"runtime"
 	"strings"
 	"sync"
@@ -33,7 +34,7 @@ func Monitor(ctx *oriEngine.OriEngine) {
 			oriLog.LogInfo("监控服务退出")
 			return
 		case data := <-webHookMsgChan:
-			ip := oriTools2.GetLoaclIp()
+			ip := rest.GetLoaclIp()
 			allConfig := oriConfig.GetHotConf()
 			data.Content = fmt.Sprintf("【%s】[ip:%s]\r\n%s", allConfig.APP, ip, data.Content)
 			if strings.ToUpper(allConfig.ENV) == "PRO" {
