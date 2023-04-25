@@ -3,7 +3,7 @@ package oriLog
 import (
 	"fmt"
 	"ori/core/oriConfig"
-	"ori/core/oriTools/rest"
+	"ori/core/oriTools/easy"
 	"strings"
 	"sync"
 )
@@ -16,9 +16,9 @@ var (
 func NewLog() *LocalLogger {
 	once.Do(func() {
 		allConfig := oriConfig.GetHotConf()
-		path := rest.GetRootPath()
+		path := easy.GetRootPath()
 		dir := path + allConfig.LogPath
-		_, err := rest.MakeDir(dir)
+		_, err := easy.MakeDir(dir)
 		if err != nil {
 			panic(fmt.Sprintf("创建日志目录失败 path:%s", dir))
 		}
