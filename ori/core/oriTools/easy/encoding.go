@@ -9,6 +9,7 @@ import (
 	"golang.org/x/text/transform"
 	"io"
 	"io/ioutil"
+	"net/url"
 )
 
 var (
@@ -83,4 +84,18 @@ func getEncoding(charset string) encoding.Encoding {
 		return e
 	}
 	return nil
+}
+
+func UrlEncode(urlstr string) string {
+	encodeurl := url.QueryEscape(urlstr)
+	return encodeurl
+}
+
+func UrlDecode(urlstr string) (string, error) {
+	decodeurl, err := url.QueryUnescape(urlstr)
+	if err != nil {
+		return "", err
+	} else {
+		return decodeurl, nil
+	}
 }
