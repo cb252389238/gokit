@@ -2,86 +2,102 @@
 package pubsub
 
 import (
+	"errors"
 	"sync"
 )
 
-// 发布者对象
+const (
+	DEFAULT_TOPIC = "default_topic"
+)
+
+type topicType = string
+type uidType = string
+type keyType = int64
+
+// 发布者
 type Publisher struct {
-	m           sync.RWMutex                     //读写锁
-	buffer      int                              //订阅队列缓存大小
-	subscribers map[string]map[int64]*Subscriber //频道订阅者信息
-	users       map[string]*Subscriber           //单个用户信息
+	m           sync.RWMutex                          //读写锁
+	buffer      int                                   //订阅队列缓存大小
+	subscribers map[topicType]map[keyType]*Subscriber //主题订阅者集合
+	users       map[uidType]*Subscriber               //用户和订阅实例绑定关系
 	snowflake   *Node
 }
 
 type Subscriber struct {
-	C     chan interface{}
-	Key   int64
-	topic string
-	uid   string
+	C     chan any
+	Key   keyType
+	Topic map[topicType]struct{} //订阅得主题
+	uid   uidType
 }
 
 // 构建一个新的发布者对象
-func NewPublisher(buffer int) (*Publisher, error) {
-	node, err := NewNode(int64(1))
-	if err != nil {
-		return nil, err
-	}
+func New() *Publisher {
+	node, _ := NewNode(int64(1))
 	return &Publisher{
 		m:           sync.RWMutex{},
-		buffer:      buffer,
-		subscribers: make(map[string]map[int64]*Subscriber),
+		buffer:      10,
+		subscribers: make(map[topicType]map[keyType]*Subscriber),
+		users:       make(map[uidType]*Subscriber),
 		snowflake:   node,
-	}, nil
+	}
 }
 
-// 添加一个新的订阅者
-func (p *Publisher) SubscriberTopic(topic, uid string) *Subscriber {
+// 订阅一个主题
+func (p *Publisher) Subscribe(topic, uid string) (*Subscriber, error) {
+	if uid == "" {
+		return nil, errors.New("uid is empty")
+	}
+	if topic == "" {
+		topic = DEFAULT_TOPIC
+	}
 	p.m.Lock()
 	defer p.m.Unlock()
 	var sub *Subscriber
-	key := p.snowflake.Generate().Int64()
-	sub = &Subscriber{
-		Key:   key,
-		C:     make(chan interface{}, p.buffer),
-		topic: topic,
-		uid:   uid,
+
+	//用户是否已经创建订阅实体
+	if val, ok := p.users[uid]; ok {
+		sub = val
+		sub.Topic[topic] = struct{}{}
+	} else {
+		key := p.snowflake.Generate().Int64()
+		sub = &Subscriber{
+			C:     make(chan any, p.buffer), //消息接受通道
+			Topic: map[topicType]struct{}{topic: {}},
+			uid:   uid,
+			Key:   key,
+		}
 	}
+
 	if subSets, ok := p.subscribers[topic]; ok {
-		subSets[key] = sub
+		if s, ok := subSets[sub.Key]; ok {
+			s.Topic[topic] = struct{}{}
+		} else {
+			subSets[sub.Key] = sub
+		}
 	} else {
 		subSets = map[int64]*Subscriber{
-			key: sub,
+			sub.Key: sub,
 		}
 		p.subscribers[topic] = subSets
 	}
 	p.users[uid] = sub
-	return sub
+	return sub, nil
 }
 
 // 退出订阅
-func (p *Publisher) Exit(sub *Subscriber) {
+func (p *Publisher) Exit(sub *Subscriber, topic string) {
 	if sub == nil {
 		return
 	}
 	p.m.Lock()
 	defer p.m.Unlock()
-	if subSets, ok := p.subscribers[sub.topic]; ok {
+	if subSets, ok := p.subscribers[topic]; ok {
 		delete(subSets, sub.Key)
-		delete(p.users, sub.uid)
+	}
+	if user, ok := p.users[sub.uid]; ok {
+		delete(user.Topic, topic)
 	}
 }
-
-/*func (p *Publisher) Del(sub *Subscriber) {
-	if sub == nil {
-		return
-	}
-	p.m.Lock()
-	defer p.m.Unlock()
-	if subSets, ok := p.subscribers[sub.topic]; ok {
-		delete(subSets, sub.Key)
-	}
-}*/
 
 // 发布一个主题信息
 func (p *Publisher) Publish(topic string, message string) {
@@ -101,24 +117,22 @@ func (p *Publisher) Publish(topic string, message string) {
 }
 
 // 向所有房间推送主题
-func (p *Publisher) PublishAll(message interface{}) {
+func (p *Publisher) PublishAll(message any) {
 	p.m.RLock()
 	defer p.m.RUnlock()
-	for _, subscriberTopic := range p.subscribers {
-		for _, v := range subscriberTopic {
-			go func(v *Subscriber) {
-				select {
-				case v.C <- message:
-				default:
-					//忽略数据
-				}
-			}(v)
-		}
+	for _, sub := range p.users {
+		go func(v *Subscriber) {
+			select {
+			case v.C <- message:
+			default:
+				//忽略数据
+			}
+		}(sub)
 	}
 }
 
 // 向单个用户发送主题
-func (p *Publisher) PublishToUser(uid string, message interface{}) {
+func (p *Publisher) PublishToUser(uid string, message any) {
 	p.m.RLock()
 	defer p.m.RUnlock()
 	if sub, ok := p.users[uid]; ok {
