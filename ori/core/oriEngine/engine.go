@@ -33,6 +33,18 @@ type OriEngine struct {
 func NewOriEngine() *OriEngine {
 	webHookCli := dingtalk.InitDingTalkWithSecret(oriConfig.GetHotConf().WebHookToken, oriConfig.GetHotConf().WebHookSecret)
 	cancel, cancelFunc := context.WithCancel(context.Background())
+	var redis *oriRedis.RedisSets
+	if len(oriConfig.GetHotConf().Redis) >= 1 {
+		redis = oriRedis.NewRedis()
+	} else {
+		redis = nil
+	}
+	var db *oriDb.MysqlSets
+	if len(oriConfig.GetHotConf().Mysql) >= 1 {
+		db = oriDb.NewDb()
+	} else {
+		db = nil
+	}
 	ctx := &OriEngine{
 		Wg:         &sync.WaitGroup{},
 		Signal:     make(chan os.Signal),
@@ -41,8 +53,8 @@ func NewOriEngine() *OriEngine {
 		L:          &sync.RWMutex{},
 		Context:    cancel,
 		Cancel:     cancelFunc,
-		Db:         oriDb.NewDb(),
-		Redis:      oriRedis.NewRedis(),
+		Db:         db,
+		Redis:      redis,
 		Pool: pool2.NewPool(
 			func() (interface{}, error) {
 				return 1, nil

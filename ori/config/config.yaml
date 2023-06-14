@@ -5,14 +5,6 @@ LogFileName: ori #日志文件名称
 LogPath: logs #日志文件目录
 LogLevel: TRAC #日志等级
 StatusReportHour: 8 #程序状态报告时间 24小时制
-Services:
-  CONFIG_HOT_UPDATE_SERVER: true #配置热更新
-  MONITOR_SERVER: true #监控服务
-  SQL_SERVER: true #数据库
-  REDIS_SERVER: true #redis服务
-  STATUS_REPORT_SERVER: true #状态报告服务
-  HTTP_SERVER: true #http服务
-  WEBSOCKET_SERVER: false #websocket服务
 Monitor: #监控参数
   MAX_CPU_PERCENT: 50 #cpu报警阈值 50%
   CPU_FLUCTUATE: 5 #CPU阈值波动

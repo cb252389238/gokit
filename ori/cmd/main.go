@@ -1,8 +1,9 @@
-package ori
+package main
 
 import (
 	"flag"
 	"fmt"
+	"log"
 	"ori/app/http"
 	"ori/app/ws"
 	"ori/core/oriConfig"
@@ -14,12 +15,9 @@ import (
 	"time"
 )
 
-var (
-	configPath string //配置文件路径
-	serFlag    string
-)
-
-func Start() {
+func start() {
+	var configPath string //配置文件路径
+	var serFlag string
 	flag.StringVar(&configPath, "f", "./config.yaml", "-f 配置文件路径")
 	flag.StringVar(&serFlag, "s", "", "-s 服务1,服务2")
 	if !flag.Parsed() {
@@ -49,4 +47,13 @@ func Start() {
 	fmt.Println(typedef.Ico)
 	fmt.Printf("服务【%s】启动完成!]\r\n", oriConfig.GetHotConf().APP)
 	oriSignal.Notify(engine) //监听信号
+}
+
+func main() {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Fatal(err)
+		}
+	}()
+	start() //启动项目
 }
