@@ -15,7 +15,12 @@ import (
 	"time"
 )
 
-func start() {
+func main() {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Fatal(err)
+		}
+	}()
 	var configPath string //配置文件路径
 	var serFlag string
 	flag.StringVar(&configPath, "f", "./config.yaml", "-f 配置文件路径")
@@ -47,13 +52,4 @@ func start() {
 	fmt.Println(typedef.Ico)
 	fmt.Printf("服务【%s】启动完成!]\r\n", oriConfig.GetHotConf().APP)
 	oriSignal.Notify(engine) //监听信号
-}
-
-func main() {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Fatal(err)
-		}
-	}()
-	start() //启动项目
 }
