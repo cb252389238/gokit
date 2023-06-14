@@ -17,6 +17,7 @@ import (
 var (
 	monitorFluctuate = map[string]interface{}{}
 	monitorLock      sync.Mutex
+	lastMsgTime      int64
 )
 
 func SendNotice(message string) {
@@ -34,6 +35,9 @@ func Monitor(ctx *oriEngine.OriEngine) {
 			oriLog.LogInfo("监控服务退出")
 			return
 		case data := <-webHookMsgChan:
+			if time.Now().Unix()-lastMsgTime <= 20 {
+				continue
+			}
 			ip := easy.GetLoaclIp()
 			allConfig := oriConfig.GetHotConf()
 			data.Content = fmt.Sprintf("【%s】[ip:%s]\r\n%s", allConfig.APP, ip, data.Content)
@@ -43,6 +47,7 @@ func Monitor(ctx *oriEngine.OriEngine) {
 			} else {
 				oriLog.LogInfo("%+v", data)
 			}
+			lastMsgTime = time.Now().Unix()
 		case <-ticker.C:
 			cpuPercent := GetCpuPercent()          //cpu使用率
 			memPercent := GetMemPercent()          //内存使用率
