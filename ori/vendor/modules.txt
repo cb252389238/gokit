@@ -13,6 +13,9 @@ github.com/coreos/go-systemd/v22/journal
 # github.com/davecgh/go-spew v1.1.1
 ## explicit
 github.com/davecgh/go-spew/spew
+# github.com/dgrijalva/jwt-go v3.2.0+incompatible
+## explicit
+github.com/dgrijalva/jwt-go
 # github.com/eapache/go-resiliency v1.3.0
 ## explicit; go 1.13
 github.com/eapache/go-resiliency/breaker
