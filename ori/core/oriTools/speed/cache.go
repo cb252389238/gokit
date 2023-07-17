@@ -174,7 +174,7 @@ func (c *cache) Get(k string) (any, bool) {
 	if !ok {
 		return nil, false
 	}
-	if item.Expiration <= time.Now().Unix() {
+	if item.Expiration <= time.Now().Unix() && item.Expiration != 0 {
 		return nil, false
 	}
 	return item.Object, true
@@ -188,7 +188,7 @@ func (c *cache) GetEx(k string) (any, time.Time, bool) {
 	if !ok {
 		return nil, time.Time{}, false
 	}
-	if item.Expiration <= time.Now().Unix() {
+	if item.Expiration <= time.Now().Unix() && item.Expiration != 0 {
 		return nil, time.Time{}, false
 	}
 	return item.Object, time.Unix(item.Expiration, 0), true
