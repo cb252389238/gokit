@@ -23,7 +23,7 @@ Http:
   Port: 9001
 Mysql:
   -
-    Host: 192.168.22.68
+    Host: 127.0.0.1
     Port: 3306
     User: root
     Password: root
