@@ -11,7 +11,6 @@ import (
 	"ori/core/oriSignal"
 	"ori/internal/service"
 	"ori/typedef"
-	"time"
 )
 
 var (
@@ -30,22 +29,12 @@ func Start() {
 	engine := oriEngine.NewOriEngine() //初始化项目资源
 	engine.Wg.Add(1)
 	go oriMonitor.Monitor(engine) //监控通知
-	//每天报告状态
-	go func() {
-		for {
-			now := time.Now()
-			next := now.Add(24 * time.Hour)
-			next = time.Date(next.Year(), next.Month(), next.Day(), oriConfig.GetHotConf().StatusReportHour, 0, 0, 0, next.Location())
-			t := time.NewTimer(next.Sub(now))
-			<-t.C
-		}
-	}()
 	engine.Wg.Add(1)
 	go http.Run(engine) //http服务
 	engine.Wg.Add(1)
 	go ws.Run(engine) //websocket服务
 	engine.Wg.Add(1)
-	service.Run(engine, serFlag) //自定义服务
+	service.Run(engine) //自定义服务
 	fmt.Println(typedef.Ico)
 	fmt.Printf("服务【%s】启动完成!]\r\n", oriConfig.GetHotConf().APP)
 	oriSignal.Notify(engine) //监听信号

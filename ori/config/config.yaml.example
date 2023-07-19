@@ -4,7 +4,6 @@ Debug: true #是否开启debug模式
 LogFileName: ori #日志文件名称
 LogPath: logs #日志文件目录
 LogLevel: TRAC #日志等级
-StatusReportHour: 8 #程序状态报告时间 24小时制
 Services:
   CONFIG_HOT_UPDATE_SERVER: true #配置热更新
   MONITOR_SERVER: true #监控服务

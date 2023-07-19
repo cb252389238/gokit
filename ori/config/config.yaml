@@ -4,7 +4,6 @@ Debug: true #是否开启debug模式
 LogFileName: ori #日志文件名称
 LogPath: logs #日志文件目录
 LogLevel: TRAC #日志等级
-StatusReportHour: 8 #程序状态报告时间 24小时制
 Monitor: #监控参数
   MAX_CPU_PERCENT: 50 #cpu报警阈值 50%
   CPU_FLUCTUATE: 5 #CPU阈值波动

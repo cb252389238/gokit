@@ -1,20 +1,19 @@
 package typedef
 
 type Config struct {
-	APP              string        //项目名称
-	ENV              string        //环境值
-	Debug            bool          //debug模式
-	LogFileName      string        //日志文件名
-	LogPath          string        //日志目录
-	LogLevel         string        //日志输出等级
-	WebHookToken     string        //钉钉token
-	WebHookSecret    string        //钉钉secret
-	Mysql            []Mysql       //数据库
-	Redis            []Redis       //oriRedis
-	Websocket        Websocket     //websocket 服务配置
-	Http             Http          //http
-	Monitor          MonitorConfig //监控
-	StatusReportHour int           //程序状态报告时间
+	APP           string        //项目名称
+	ENV           string        //环境值
+	Debug         bool          //debug模式
+	LogFileName   string        //日志文件名
+	LogPath       string        //日志目录
+	LogLevel      string        //日志输出等级
+	WebHookToken  string        //钉钉token
+	WebHookSecret string        //钉钉secret
+	Mysql         []Mysql       //数据库
+	Redis         []Redis       //oriRedis
+	Websocket     Websocket     //websocket 服务配置
+	Http          Http          //http
+	Monitor       MonitorConfig //监控
 }
 
 type MonitorConfig struct {
