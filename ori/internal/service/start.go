@@ -2,25 +2,11 @@ package service
 
 import (
 	"ori/core/oriEngine"
-	"ori/core/oriLog"
-	"ori/internal/service/factory"
-	"strings"
+	"ori/internal/service/task"
 )
 
-func Run(engine *oriEngine.OriEngine, services string) {
+func Run(engine *oriEngine.OriEngine) {
 	defer engine.Wg.Done()
-	f := factory.New(engine)
-	if services != "" {
-		replaces := strings.Replace(services, "，", ",", -1)
-		servicesSlice := strings.Split(replaces, ",")
-		for _, serviceName := range servicesSlice {
-			service, err := f.Service(serviceName)
-			if err != nil {
-				oriLog.Error("服务不存在:%s", serviceName)
-				continue
-			}
-			engine.Wg.Add(1)
-			go service.Run(engine)
-		}
-	}
+	engine.Wg.Add(1)
+	go new(task.Example).Run(engine)
 }

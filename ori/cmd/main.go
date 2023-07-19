@@ -22,9 +22,7 @@ func main() {
 		}
 	}()
 	var configPath string //配置文件路径
-	var serFlag string
 	flag.StringVar(&configPath, "f", "./config.yaml", "-f 配置文件路径")
-	flag.StringVar(&serFlag, "s", "", "-s 服务1,服务2")
 	if !flag.Parsed() {
 		flag.Parse()
 	}
@@ -48,7 +46,7 @@ func main() {
 	engine.Wg.Add(1)
 	go ws.Run(engine) //websocket服务
 	engine.Wg.Add(1)
-	service.Run(engine, serFlag) //自定义服务
+	service.Run(engine) //自定义服务
 	fmt.Println(typedef.Ico)
 	fmt.Printf("服务【%s】启动完成!]\r\n", oriConfig.GetHotConf().APP)
 	oriSignal.Notify(engine) //监听信号
