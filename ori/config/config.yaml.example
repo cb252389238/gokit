@@ -35,8 +35,8 @@ Mysql:
     Host: 192.168.22.68
     Port: 3306
     User: root
-    Password: 123456789
-    Database: dev_daofeng
+    Password: root
+    Database: test
     Name: default
 Redis:
   -
