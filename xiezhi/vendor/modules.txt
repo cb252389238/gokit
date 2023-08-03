@@ -1,0 +1,10 @@
+# github.com/cespare/xxhash/v2 v2.2.0
+## explicit; go 1.11
+github.com/cespare/xxhash/v2
+# github.com/go-ego/gse v0.80.2
+## explicit; go 1.17
+github.com/go-ego/gse
+github.com/go-ego/gse/hmm
+# github.com/vcaesar/cedar v0.20.1
+## explicit; go 1.17
+github.com/vcaesar/cedar

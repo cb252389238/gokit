@@ -1,0 +1,7 @@
+github.com/cespare/xxhash/v2 v2.2.0 h1:DC2CZ1Ep5Y4k3ZQ899DldepgrayRUGE6BBZ/cd9Cj44=
+github.com/cespare/xxhash/v2 v2.2.0/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
+github.com/go-ego/gse v0.80.2 h1:3LRfkaBuwlsHsmkOZvnhTcsYPXUAhiP06Sqcid7mO1M=
+github.com/go-ego/gse v0.80.2/go.mod h1:kesekpZfcFQ/kwd9b27VZHUOH5dQUjaaQUZ4OGt4Hj4=
+github.com/vcaesar/cedar v0.20.1 h1:cDOmYWdprO7ZW8cngJrDi8Zivnscj9dA/y8Y+2SB1P0=
+github.com/vcaesar/cedar v0.20.1/go.mod h1:iMDweyuW76RvSrCkQeZeQk4iCbshiPzcCvcGCtpM7iI=
+github.com/vcaesar/tt v0.20.0 h1:9t2Ycb9RNHcP0WgQgIaRKJBB+FrRdejuaL6uWIHuoBA=
