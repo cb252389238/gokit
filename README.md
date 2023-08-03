@@ -22,3 +22,4 @@ https://jb.gg/OpenSourceSupport
 - msgStore 消息拉取服务 用于im
 - ori 干净的一个项目架子
 - projectRows 计算项目代码行数
+- xiezhi 文档相似度对比，支持simhash算法，minhash，余弦相似度
