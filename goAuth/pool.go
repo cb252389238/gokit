@@ -1,4 +1,4 @@
-package auth
+package goAuth
 
 import "errors"
 

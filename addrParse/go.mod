@@ -1,5 +1,3 @@
-module addrParse
+module github.com/cb252389238/gokit/addrParse
 
-go 1.16
-
-require github.com/pupuk/addr v0.0.2
+go 1.20

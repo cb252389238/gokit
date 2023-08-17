@@ -1,4 +1,4 @@
-package auth
+package goAuth
 
 import (
 	"database/sql"
@@ -55,7 +55,8 @@ func (this *GoAuth) poolInit() (Pool, error) {
 	return NewChannelPool(poolConfig)
 }
 
-/**
+/*
+*
 添加权限规则
 */
 func (this *GoAuth) AddRule(name, title string, category int, categoryName string) error {
@@ -73,7 +74,8 @@ func (this *GoAuth) AddRule(name, title string, category int, categoryName strin
 	return nil
 }
 
-/**
+/*
+*
 修改权限规则
 */
 func (this *GoAuth) EditRule(id int, name, title string, category int, categoryName string) error {
@@ -91,7 +93,8 @@ func (this *GoAuth) EditRule(id int, name, title string, category int, categoryN
 	return nil
 }
 
-/**
+/*
+*
 删除权限规则
 */
 func (this *GoAuth) DeleteRule(id int) error {
@@ -109,7 +112,8 @@ func (this *GoAuth) DeleteRule(id int) error {
 	return nil
 }
 
-/**
+/*
+*
 添加新角色
 */
 func (this *GoAuth) AddRole(title string) error {
@@ -127,7 +131,8 @@ func (this *GoAuth) AddRole(title string) error {
 	return nil
 }
 
-/**
+/*
+*
 删除角色
 */
 func (this *GoAuth) DeleteRole(id int) error {
@@ -145,7 +150,8 @@ func (this *GoAuth) DeleteRole(id int) error {
 	return nil
 }
 
-/**
+/*
+*
 修改角色
 */
 func (this *GoAuth) EditRole(id int, title, rules string) error {
@@ -163,7 +169,8 @@ func (this *GoAuth) EditRole(id int, title, rules string) error {
 	return nil
 }
 
-/**
+/*
+*
 给用户赋予角色
 */
 func (this *GoAuth) GiveUserRole(uid, roleId int) error {
@@ -181,7 +188,8 @@ func (this *GoAuth) GiveUserRole(uid, roleId int) error {
 	return nil
 }
 
-/**
+/*
+*
 删除用户角色
 */
 func (this *GoAuth) DeleteUserRole(uid, groupId int) error {
@@ -199,7 +207,8 @@ func (this *GoAuth) DeleteUserRole(uid, groupId int) error {
 	return nil
 }
 
-/**
+/*
+*
 获取角色列表
 */
 func (this *GoAuth) ShowRoleList() ([]map[string]interface{}, error) {
@@ -228,7 +237,8 @@ func (this *GoAuth) ShowRoleList() ([]map[string]interface{}, error) {
 	return list, nil
 }
 
-/**
+/*
+*
 获取角色下的用户
 */
 func (this *GoAuth) ShowRoleUserList(roleId int) ([]map[string]interface{}, error) {
@@ -262,7 +272,8 @@ func (this *GoAuth) ShowRoleUserList(roleId int) ([]map[string]interface{}, erro
 	return list, nil
 }
 
-/**
+/*
+*
 获取角色权限
 */
 func (this *GoAuth) GetRoleRules(roleId int) (map[int][]interface{}, error) {
@@ -320,7 +331,8 @@ func (this *GoAuth) GetRoleRules(roleId int) (map[int][]interface{}, error) {
 	return sortList, nil
 }
 
-/**
+/*
+*
 验证用户是否拥有权限
 */
 func (this *GoAuth) VerifyAuth(uid int, ruleName string) (bool, error) {

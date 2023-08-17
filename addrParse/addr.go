@@ -6,10 +6,10 @@ import (
 	"strconv"
 	"strings"
 
-	"addrParse/areaMap"
+	"github.com/cb252389238/gokit/addrParse/areaMap"
 )
 
-//地址过滤
+// 地址过滤
 type Address struct {
 	IdNumber string `json:"id_number"`
 	Mobile   string `json:"mobile"`

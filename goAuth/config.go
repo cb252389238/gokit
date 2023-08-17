@@ -1,4 +1,4 @@
-package auth
+package goAuth
 
 const (
 	auth_rule_name        = "auth_rule"        //权限规则表
