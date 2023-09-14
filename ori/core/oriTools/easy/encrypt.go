@@ -501,3 +501,36 @@ func EncryptHmacSHA256(ak, sk string) (sign, ts string) {
 	sign = base64.StdEncoding.EncodeToString(h.Sum(nil))
 	return
 }
+
+func TeaEncrypt(plainText [2]uint32, key [4]uint32) [2]uint32 {
+	delta := uint32(0x9e3779b9)
+	sum := uint32(0)
+
+	left := plainText[0]
+	right := plainText[1]
+
+	for i := 0; i < 32; i++ {
+		sum += delta
+		left += ((right << 4) + key[0]) ^ (right + sum) ^ ((right >> 5) + key[1])
+		right += ((left << 4) + key[2]) ^ (left + sum) ^ ((left >> 5) + key[3])
+	}
+
+	return [2]uint32{left, right}
+}
+
+// 解密函数
+func TeaDecrypt(cipherText [2]uint32, key [4]uint32) [2]uint32 {
+	delta := uint32(0x9e3779b9)
+	sum := delta * 32
+
+	left := cipherText[0]
+	right := cipherText[1]
+
+	for i := 0; i < 32; i++ {
+		right -= ((left << 4) + key[2]) ^ (left + sum) ^ ((left >> 5) + key[3])
+		left -= ((right << 4) + key[0]) ^ (right + sum) ^ ((right >> 5) + key[1])
+		sum -= delta
+	}
+
+	return [2]uint32{left, right}
+}
