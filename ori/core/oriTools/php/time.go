@@ -64,10 +64,12 @@ func Checkdate(month, day, year int) bool {
 	return true
 }
 
+// 睡眠指定秒数
 func Sleep(t int) {
 	time.Sleep(time.Duration(t) * time.Second)
 }
 
+// 睡眠微秒
 func Usleep(t int64) {
 	time.Sleep(time.Duration(t) * time.Microsecond)
 }

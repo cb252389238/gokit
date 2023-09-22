@@ -1,16 +1,20 @@
 package easy
 
 import (
+	"errors"
 	"fmt"
 	"image/gif"
 	"image/jpeg"
 	"image/png"
+	"mime"
+	"net/http"
 	"os"
 	"path"
 	"strings"
 	"time"
 )
 
+// 创建目录
 func MakeDir(path string) (string, error) {
 	bools, _ := PathExists(path)
 	if !bools {
@@ -106,4 +110,31 @@ func PathExists(paths string) (bool, error) {
 		return false, nil
 	}
 	return false, err
+}
+
+// 返回文件真实类型
+func FileType(filePath string) (string, error) {
+	var fileType string
+	var err error
+	file, err := os.Open(filePath)
+	if err != nil {
+		return fileType, err
+	}
+	defer file.Close()
+	// 读取文件的前 512 个字节
+	buffer := make([]byte, 512)
+	n, err := file.Read(buffer)
+	if n <= 0 {
+		return fileType, errors.New("empty file")
+	}
+	if err != nil {
+		return fileType, err
+	}
+	// 调用 http.DetectContentType 方法判断文件类型
+	contentType := http.DetectContentType(buffer[:n])
+	byType, err := mime.ExtensionsByType(contentType)
+	if err != nil {
+		return fileType, err
+	}
+	return byType[len(byType)-1][1:], nil
 }
