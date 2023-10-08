@@ -1,14 +1,14 @@
 package oriSignal
 
 import (
-	"ori/core/oriEngine"
 	"ori/core/oriLog"
+	"ori/internal/engine"
 	"os"
 	"os/signal"
 	"syscall"
 )
 
-func listen(engine *oriEngine.OriEngine, s os.Signal) {
+func listen(engine *engine.OriEngine, s os.Signal) {
 	switch s {
 	case syscall.SIGTERM, syscall.SIGKILL, syscall.SIGINT: //强制退出，立即退出程序 kill pid,kill -9 pid
 		engine.Cancel()
@@ -28,7 +28,7 @@ func listen(engine *oriEngine.OriEngine, s os.Signal) {
 	}
 }
 
-func Notify(engine *oriEngine.OriEngine) {
+func Notify(engine *engine.OriEngine) {
 	signal.Notify(engine.Signal, Signals...)
 	for s := range engine.Signal {
 		listen(engine, s) //退出服务

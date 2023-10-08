@@ -5,11 +5,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
 	"net/http"
-	"ori/core/oriEngine"
+	"ori/internal/engine"
 	"ori/internal/logic"
 )
 
-func Test1(oriEngine *oriEngine.OriEngine) gin.HandlerFunc {
+func Test1(oriEngine *engine.OriEngine) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		value := c.Query("name") //127.0.0.1:9001/test1?name=111
 		c.JSON(http.StatusOK, map[string]any{
@@ -20,31 +20,31 @@ func Test1(oriEngine *oriEngine.OriEngine) gin.HandlerFunc {
 	}
 }
 
-func Test2(oriEngine *oriEngine.OriEngine) gin.HandlerFunc {
+func Test2(oriEngine *engine.OriEngine) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 	}
 }
 
-func Test3(oriEngine *oriEngine.OriEngine) gin.HandlerFunc {
+func Test3(oriEngine *engine.OriEngine) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 	}
 }
 
-func Test4(oriEngine *oriEngine.OriEngine) gin.HandlerFunc {
+func Test4(oriEngine *engine.OriEngine) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 	}
 }
 
-func Test5(oriEngine *oriEngine.OriEngine) gin.HandlerFunc {
+func Test5(oriEngine *engine.OriEngine) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 	}
 }
 
-func UserInfo(oriEngine *oriEngine.OriEngine) gin.HandlerFunc {
+func UserInfo(oriEngine *engine.OriEngine) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		uid := c.Query("uid")
 		if uid == "" {

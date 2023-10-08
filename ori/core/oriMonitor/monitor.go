@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"github.com/blinkbean/dingtalk"
 	"ori/core/oriConfig"
-	"ori/core/oriEngine"
 	"ori/core/oriLog"
 	oriTools2 "ori/core/oriTools/concurrence"
 	"ori/core/oriTools/easy"
+	"ori/internal/engine"
 	"runtime"
 	"strings"
 	"sync"
@@ -26,7 +26,7 @@ func SendNotice(message string) {
 	}
 }
 
-func Monitor(ctx *oriEngine.OriEngine) {
+func Monitor(ctx *engine.OriEngine) {
 	defer ctx.Wg.Done()
 	ticker := time.NewTicker(time.Second * 3)
 	for {

@@ -9,9 +9,9 @@ import (
 	"net"
 	"net/http"
 	"ori/core/oriConfig"
-	"ori/core/oriEngine"
 	"ori/core/oriLog"
 	"ori/core/oriSignal"
+	"ori/internal/engine"
 	"os"
 	"os/exec"
 	"sync"
@@ -26,7 +26,7 @@ var (
 	wg       = &sync.WaitGroup{}
 )
 
-func Run(oriEngine *oriEngine.OriEngine) {
+func Run(oriEngine *engine.OriEngine) {
 	defer oriEngine.Wg.Done()
 	if !flag.Parsed() {
 		flag.Parse()
@@ -66,7 +66,7 @@ func Run(oriEngine *oriEngine.OriEngine) {
 	signalHandle(oriEngine, server)
 }
 
-func signalHandle(oriEngine *oriEngine.OriEngine, server *http.Server) {
+func signalHandle(oriEngine *engine.OriEngine, server *http.Server) {
 	for {
 		select {
 		case <-oriEngine.Context.Done():

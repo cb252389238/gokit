@@ -11,9 +11,9 @@ import (
 	"net"
 	"net/http"
 	"ori/core/oriConfig"
-	"ori/core/oriEngine"
 	"ori/core/oriLog"
 	"ori/core/oriSignal"
+	"ori/internal/engine"
 	"os"
 	"os/exec"
 	"sync"
@@ -33,7 +33,7 @@ var (
 	wg       = &sync.WaitGroup{}
 )
 
-func handle(oriEngine *oriEngine.OriEngine) gin.HandlerFunc {
+func handle(oriEngine *engine.OriEngine) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		wg.Add(1)
 		defer wg.Done()
@@ -46,13 +46,13 @@ func handle(oriEngine *oriEngine.OriEngine) gin.HandlerFunc {
 	}
 }
 
-func SetupRouter(oriEngine *oriEngine.OriEngine) *gin.Engine {
+func SetupRouter(oriEngine *engine.OriEngine) *gin.Engine {
 	engine := gin.New()
 	engine.GET("/*paramsUrl", handle(oriEngine))
 	return engine
 }
 
-func Run(oriEngine *oriEngine.OriEngine) {
+func Run(oriEngine *engine.OriEngine) {
 	defer oriEngine.Wg.Done()
 	if !flag.Parsed() {
 		flag.Parse()
@@ -92,7 +92,7 @@ func Run(oriEngine *oriEngine.OriEngine) {
 	signalHandle(oriEngine, server)
 }
 
-func signalHandle(oriEngine *oriEngine.OriEngine, server *http.Server) {
+func signalHandle(oriEngine *engine.OriEngine, server *http.Server) {
 	for {
 		select {
 		case <-oriEngine.Context.Done():

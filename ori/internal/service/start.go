@@ -1,11 +1,11 @@
 package service
 
 import (
-	"ori/core/oriEngine"
+	"ori/internal/engine"
 	"ori/internal/service/task"
 )
 
-func Run(engine *oriEngine.OriEngine) {
+func Run(engine *engine.OriEngine) {
 	defer engine.Wg.Done()
 	engine.Wg.Add(1)
 	go new(task.Example).Run(engine)
