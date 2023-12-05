@@ -12,6 +12,14 @@ var (
 )
 
 func TestID_Node(t *testing.T) {
+	node, err := NewNode(1)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	for i := 0; i < 10; i++ {
+		fmt.Println(node.Generate().Int64())
+	}
 	for nnum := 1; nnum < 11; nnum++ {
 		wg.Add(1)
 		go func(nnum int64) {
