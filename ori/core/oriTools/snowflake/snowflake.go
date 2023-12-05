@@ -12,19 +12,15 @@ import (
 )
 
 var (
-	// Epoch is set to the twitter snowflake epoch of Nov 04 2010 01:42:54 UTC in milliseconds
-	// You may customize this to set a different epoch for your application.
+	//雪花算法初始纪元年的时间戳，单位毫秒，以该时间为起点
 	Epoch int64 = 1288834974657
 
-	// NodeBits holds the number of bits to use for Node
-	// Remember, you have a total 22 bits to share between Node/Step
+	//节点比特位，用于存储不同机器节点，范围 [0,1023]
 	NodeBits uint8 = 10
 
-	// StepBits holds the number of bits to use for Step
-	// Remember, you have a total 22 bits to share between Node/Step
+	//递增序列号比特位，范围[0,4095]。单机1毫秒内可生成4096个id
 	StepBits uint8 = 12
 
-	// DEPRECATED: the below four variables will be removed in a future release.
 	mu        sync.Mutex
 	nodeMax   int64 = -1 ^ (-1 << NodeBits)
 	nodeMask        = nodeMax << StepBits
@@ -142,24 +138,44 @@ func (n *Node) Generate() ID {
 
 	now := time.Since(n.epoch).Milliseconds()
 
-	if now == n.time {
+	switch {
+	case now == n.time: //单位毫秒内不进累加返回id
 		n.step = (n.step + 1) & n.stepMask
-
-		if n.step == 0 {
-			for now <= n.time {
-				now = time.Since(n.epoch).Milliseconds()
-			}
-		}
-	} else {
+		n.time = now
+	case now > n.time: //进入下一毫秒
 		n.step = 0
+		n.time = now
+	case now < n.time: //时间发生了回溯
+		if n.step >= 4095 {
+			n.time += 1
+			n.step = 0
+		} else {
+			n.step = (n.step + 1) & n.stepMask
+		}
 	}
-
-	n.time = now
-
-	r := ID((now)<<n.timeShift |
+	r := ID((n.time)<<n.timeShift |
 		(n.node << n.nodeShift) |
 		(n.step),
 	)
+
+	//旧代码注释
+	//if now == n.time {
+	//	n.step = (n.step + 1) & n.stepMask
+	//
+	//	if n.step == 0 {
+	//		for now <= n.time {
+	//			now = time.Since(n.epoch).Milliseconds()
+	//		}
+	//	}
+	//} else {
+	//	n.step = 0
+	//}
+	//n.time = now
+
+	//r := ID((now)<<n.timeShift |
+	//	(n.node << n.nodeShift) |
+	//	(n.step),
+	//)
 
 	return r
 }
