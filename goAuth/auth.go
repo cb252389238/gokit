@@ -226,7 +226,10 @@ func (this *GoAuth) ShowRoleList() ([]map[string]interface{}, error) {
 		return nil, err
 	}
 	list := []map[string]interface{}{}
-	var id, title, status, rules interface{}
+	var id int
+	var title string
+	var status int
+	var rules string
 	for rows.Next() {
 		if err := rows.Scan(&id, &title, &status, &rules); err != nil {
 			return nil, err
