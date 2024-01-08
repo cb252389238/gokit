@@ -2,6 +2,7 @@ package easy
 
 import (
 	"crypto/rand"
+	"encoding/binary"
 	"math/big"
 	"strconv"
 )
@@ -83,4 +84,37 @@ func RandNumStr(len int) string {
 func RandNum(max int64) int64 {
 	n, _ := rand.Int(rand.Reader, big.NewInt(max))
 	return n.Int64()
+}
+
+const (
+	bufferChanSize = 10000
+)
+
+var (
+	bufferChan = make(chan []byte, bufferChanSize)
+)
+
+/*
+*
+获取指定范围的随机数
+*/
+func N(min, max int) int {
+	if min >= max {
+		return min
+	}
+	if min >= 0 {
+		return intn(max-min+1) + min
+	}
+	return intn(max+(0-min)+1) - (0 - min)
+}
+
+func intn(max int) int {
+	if max <= 0 {
+		return max
+	}
+	n := int(binary.LittleEndian.Uint32(<-bufferChan)) % max
+	if (max > 0 && n < 0) || (max < 0 && n > 0) {
+		return -n
+	}
+	return n
 }

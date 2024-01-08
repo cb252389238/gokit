@@ -9,7 +9,8 @@ import (
 	"strings"
 )
 
-func GetLoaclIp() string {
+// 获取本地ip
+func GetLocalIp() string {
 	var err error
 	var ip = "127.0.0.1"
 	addrs, err := net.InterfaceAddrs()
