@@ -38,7 +38,7 @@ func Monitor(ctx *engine.OriEngine) {
 			if time.Now().Unix()-lastMsgTime <= 20 {
 				continue
 			}
-			ip := easy.GetLoaclIp()
+			ip := easy.GetLocalIp()
 			allConfig := oriConfig.GetHotConf()
 			data.Content = fmt.Sprintf("【%s】[ip:%s]\r\n%s", allConfig.APP, ip, data.Content)
 			if strings.ToUpper(allConfig.ENV) == "PRO" {

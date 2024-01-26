@@ -1,12 +1,14 @@
 package oriRedis
 
 import (
+	"context"
 	"fmt"
+	"github.com/redis/go-redis/v9"
 	"github.com/spf13/cast"
 	"ori/core/oriConfig"
+	"strconv"
 	"sync"
-
-	"github.com/go-redis/redis"
+	"time"
 )
 
 var (
@@ -32,6 +34,31 @@ func (r *RedisSets) Redis(key ...string) *redis.Client {
 	return nil
 }
 
+// redis并发锁
+func (r *RedisSets) Lock(ctx context.Context, redisName string, key string, lockTime time.Duration) (success bool, unlock func(), err error) {
+	value := time.Now().UnixMicro()
+	val := strconv.FormatInt(value, 10)
+	redisCli := r.Redis(redisName)
+	stm, err := redisCli.SetNX(ctx, key, val, lockTime).Result()
+	if err != nil {
+		return false, nil, err
+	}
+	if stm == false {
+		return false, nil, nil
+	}
+	return true, func() {
+		c := context.Background()
+		result, err := redisCli.Get(c, key).Result()
+		if err != nil {
+			return
+		}
+		if result != val {
+			return
+		}
+		redisCli.Del(c, key)
+	}, nil
+}
+
 func NewRedis() *RedisSets {
 	once.Do(func() {
 		conf := oriConfig.GetHotConf()
@@ -43,7 +70,7 @@ func NewRedis() *RedisSets {
 				DB:         cast.ToInt(r.Database),
 				MaxRetries: 3, //重试次数
 			})
-			_, err := client.Ping().Result()
+			_, err := client.Ping(context.Background()).Result()
 			if err != nil {
 				panic(err)
 			}
