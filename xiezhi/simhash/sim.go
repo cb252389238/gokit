@@ -11,7 +11,7 @@ const (
 )
 
 // 获取hash值
-func Simhash(tokens []string) uint64 {
+func SimHash(tokens []string) uint64 {
 	// 计算每个分词的权重
 	weights := make(map[string]int)
 	for _, token := range tokens {

@@ -12,18 +12,9 @@ import (
 )
 
 var (
-	//jieba *gojieba.Jieba
 	once sync.Once
 	gose *fenci.FenCi
 )
-
-//func newJieba() *gojieba.Jieba {
-//	once.Do(func() {
-//		x := gojieba.NewJieba()
-//		jieba = x
-//	})
-//	return jieba
-//}
 
 func NewFenCi() *fenci.FenCi {
 	once.Do(func() {
@@ -41,14 +32,12 @@ func cut(text string) []string {
 	text = strings.Replace(text, "\t", "", -1)
 	text = strings.Replace(text, "\n", "", -1)
 	text = strings.Replace(text, "\r", "", -1)
-	//return newJieba().Cut(text, true)
-	//fmt.Println(newFenCi().Cut(text))
 	return NewFenCi().Cut(text)
 }
 
 // 获取文档min hash签名
 func SimHash(text string) uint64 {
-	hash := simhash.Simhash(cut(text))
+	hash := simhash.SimHash(cut(text))
 	return hash
 }
 
