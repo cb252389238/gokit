@@ -14,20 +14,21 @@ import (
 	"time"
 )
 
+// 文件日志配置
 type fileLogger struct {
 	sync.RWMutex
 	fileWriter *os.File
 
-	Filename   string `json:"filename"`
-	Append     bool   `json:"append"`
-	MaxLines   int    `json:"maxlines"`
-	MaxSize    int    `json:"maxsize"`
-	Daily      bool   `json:"daily"`
-	MaxDays    int64  `json:"maxdays"`
-	Level      string `json:"level"`
-	PermitMask string `json:"permit"`
+	Filename   string `json:"filename"` //日志名称
+	Append     bool   `json:"append"`   //是否追加到结尾
+	MaxLines   int    `json:"maxlines"` //单个文件最大行数
+	MaxSize    int    `json:"maxsize"`  //单个文件最大容量大小 mb
+	Daily      bool   `json:"daily"`    //是否按天分割
+	MaxDays    int64  `json:"maxdays"`  //日志文件最大有效期 -1永久
+	Level      string `json:"level"`    //日志等级
+	PermitMask string `json:"permit"`   //文件权限
 
-	LogLevel             int
+	LogLevel             int //日志等级
 	maxSizeCurSize       int
 	maxLinesCurLines     int
 	dailyOpenDate        int
@@ -35,18 +36,6 @@ type fileLogger struct {
 	fileNameOnly, suffix string
 }
 
-// Init file logger with json oriConfig.
-// jsonConfig like:
-//
-//		{
-//		"filename":"logs/app.logs",
-//		"maxlines":10000,
-//		"maxsize":1024,
-//		"daily":true,
-//		"maxdays":15,
-//		"rotate":true,
-//	 	"permit":"0600"
-//		}
 func (f *fileLogger) Init(jsonConfig string) error {
 	fmt.Printf("fileLogger Init:%s\n", jsonConfig)
 	if len(jsonConfig) == 0 {

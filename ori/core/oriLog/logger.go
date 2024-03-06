@@ -120,11 +120,11 @@ func NewLogger(depth ...int) *LocalLogger {
 
 // 配置文件
 type logConfig struct {
-	TimeFormat string         `json:"TimeFormat"`
+	TimeFormat string         `json:"TimeFormat"` //时间格式
 	Console    *consoleLogger `json:"Console,omitempty"`
 	File       *fileLogger    `json:"File,omitempty"`
 	Conn       *connLogger    `json:"Conn,omitempty"`
-	Format     string         `json:"Format"`
+	Format     string         `json:"Format"` //格式 json
 }
 
 func New() *LocalLogger {

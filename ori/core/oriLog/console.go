@@ -31,12 +31,13 @@ var colors = []brush{
 	newBrush("1;32"), // Trace              绿色
 }
 
+// 控制台日志配置
 type consoleLogger struct {
 	sync.Mutex
-	Level    string `json:"level"`
-	Colorful bool   `json:"color"`
-	LogLevel int
-	Switch   bool
+	Level    string `json:"level"` //日志等级
+	Colorful bool   `json:"color"` //是否开启日志颜色
+	LogLevel int    //日志等级
+	Switch   bool   //控制台日志开关
 }
 
 func (c *consoleLogger) Init(jsonConfig string) error {
