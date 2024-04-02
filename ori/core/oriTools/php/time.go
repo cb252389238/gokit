@@ -18,7 +18,7 @@ var formatMap = map[string]string{
 	"s": "05",
 }
 
-func Strtotime(format, strtime string) (int64, error) {
+func StrToTime(format, strtime string) (int64, error) {
 	for k, v := range formatMap {
 		format = strings.Replace(format, k, v, -1)
 	}
@@ -42,7 +42,7 @@ func Date(format string, timestamp ...int64) string {
 	return time.Unix(t, 0).Format(format)
 }
 
-func Checkdate(month, day, year int) bool {
+func CheckDate(month, day, year int) bool {
 	if month < 1 || month > 12 || day < 1 || day > 31 || year < 1 || year > 32767 {
 		return false
 	}

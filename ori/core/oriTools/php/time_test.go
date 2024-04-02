@@ -10,7 +10,7 @@ func TestTime(t *testing.T) {
 }
 
 func TestStrtotime(t *testing.T) {
-	fmt.Println(Strtotime("Ymd H:i:s", "20230404 14:30:30"))
+	fmt.Println(StrToTime("Ymd H:i:s", "20230404 14:30:30"))
 }
 
 func TestDate(t *testing.T) {
@@ -30,5 +30,5 @@ func TestUsleep(t *testing.T) {
 }
 
 func TestCheckdate(t *testing.T) {
-	fmt.Println(Checkdate(12, 02, 2023))
+	fmt.Println(CheckDate(12, 02, 2023))
 }
