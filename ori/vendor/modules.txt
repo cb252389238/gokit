@@ -58,8 +58,6 @@ github.com/go-playground/universal-translator
 # github.com/go-playground/validator/v10 v10.10.0
 ## explicit; go 1.13
 github.com/go-playground/validator/v10
-# github.com/go-redis/redis v6.15.9+incompatible
-## explicit
 # github.com/go-sql-driver/mysql v1.6.0
 ## explicit; go 1.10
 github.com/go-sql-driver/mysql
@@ -223,9 +221,7 @@ github.com/power-devops/perfstat
 # github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475
 ## explicit
 github.com/rcrowley/go-metrics
-# github.com/redis/go-redis v6.15.9+incompatible
-## explicit
-# github.com/redis/go-redis/v9 v9.4.0
+# github.com/redis/go-redis/v9 v9.5.3
 ## explicit; go 1.18
 github.com/redis/go-redis/v9
 github.com/redis/go-redis/v9/internal
