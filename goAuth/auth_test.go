@@ -6,55 +6,87 @@ import (
 )
 
 func TestGoAuth_AddRule(t *testing.T) {
-	goAuth, err := New("root:root@tcp(127.0.0.1:3306)/test?charset=utf8")
+	goAuth, err := New(CoreAuthConfig{
+		UserName: "root",
+		PassWord: "root",
+		Host:     "127.0.0.1",
+		Port:     3306,
+		Database: "test",
+	})
 	if err != nil {
 		panic(err)
 	}
-	if err := goAuth.AddRule("/admin/index", "首页", 0, ""); err != nil {
+	if err := goAuth.AddRule("enter_room_hidden", "隐身进厅", 1, "开启后隐身进入房间大厅"); err != nil {
 		fmt.Println(err)
 	}
-	if err := goAuth.AddRule("/admin/list", "列表", 0, ""); err != nil {
+	if err := goAuth.AddRule("up_maiwei", "上麦位", 1, "主动上麦位"); err != nil {
 		fmt.Println(err)
 	}
-	if err := goAuth.AddRule("/admin/add", "添加", 0, ""); err != nil {
-		fmt.Println(err)
-	}
-	if err := goAuth.AddRule("/admin/edit", "修改", 0, ""); err != nil {
-		fmt.Println(err)
-	}
-	if err := goAuth.AddRule("/admin/delete", "删除", 0, ""); err != nil {
+	if err := goAuth.AddRule("withdraw", "提现", 2, "提现权限"); err != nil {
 		fmt.Println(err)
 	}
 }
 
 func TestGoAuth_EditRule(t *testing.T) {
-	goAuth, err := New("root:root@tcp(127.0.0.1:3306)/test?charset=utf8")
+	goAuth, err := New(CoreAuthConfig{
+		UserName: "root",
+		PassWord: "root",
+		Host:     "127.0.0.1",
+		Port:     3306,
+		Database: "test",
+	})
 	if err != nil {
 		panic(err)
 	}
-	if err := goAuth.EditRule(1, "/admin/index", "首页1", 0, ""); err != nil {
+	if err := goAuth.EditRule(1, "enter_room_hidden", "隐身进入房间", 1, ""); err != nil {
 		fmt.Println(err)
 	}
 }
 
-func TestGoAuth_AddRole(t *testing.T) {
-	goAuth, err := New("root:root@tcp(127.0.0.1:3306)/test?charset=utf8")
+func TestCoreAuth_DeleteRule(t *testing.T) {
+	goAuth, err := New(CoreAuthConfig{
+		UserName: "root",
+		PassWord: "root",
+		Host:     "127.0.0.1",
+		Port:     3306,
+		Database: "test",
+	})
 	if err != nil {
 		panic(err)
 	}
-	if err := goAuth.AddRole("管理员"); err != nil {
+	goAuth.DeleteRule(2)
+}
+
+func TestGoAuth_AddRole(t *testing.T) {
+	goAuth, err := New(CoreAuthConfig{
+		UserName: "root",
+		PassWord: "root",
+		Host:     "127.0.0.1",
+		Port:     3306,
+		Database: "test",
+	})
+	if err != nil {
+		panic(err)
+	}
+	if err := goAuth.AddRole("主持人", "1,3"); err != nil {
 		t.Error(err)
 	}
-	if err := goAuth.AddRole("运营"); err != nil {
+	if err := goAuth.AddRole("麦未嘉宾", "1"); err != nil {
 		t.Error(err)
 	}
-	if err := goAuth.AddRole("测试"); err != nil {
+	if err := goAuth.AddRole("歌手", "1"); err != nil {
 		t.Error(err)
 	}
 }
 
 func TestGoAuth_GiveUserRole(t *testing.T) {
-	goAuth, err := New("root:root@tcp(127.0.0.1:3306)/test?charset=utf8")
+	goAuth, err := New(CoreAuthConfig{
+		UserName: "root",
+		PassWord: "root",
+		Host:     "127.0.0.1",
+		Port:     3306,
+		Database: "test",
+	})
 	if err != nil {
 		panic(err)
 	}
@@ -64,34 +96,16 @@ func TestGoAuth_GiveUserRole(t *testing.T) {
 	if err := goAuth.GiveUserRole(1, 2); err != nil {
 		t.Error(err)
 	}
-	if err := goAuth.GiveUserRole(1, 3); err != nil {
-		t.Error(err)
-	}
-	if err := goAuth.GiveUserRole(1, 4); err != nil {
-		t.Error(err)
-	}
-	if err := goAuth.GiveUserRole(1, 5); err != nil {
-		t.Error(err)
-	}
-	if err := goAuth.GiveUserRole(2, 1); err != nil {
-		t.Error(err)
-	}
-	if err := goAuth.GiveUserRole(2, 2); err != nil {
-		t.Error(err)
-	}
-	if err := goAuth.GiveUserRole(2, 3); err != nil {
-		t.Error(err)
-	}
-	if err := goAuth.GiveUserRole(3, 1); err != nil {
-		t.Error(err)
-	}
-	if err := goAuth.GiveUserRole(3, 2); err != nil {
-		t.Error(err)
-	}
 }
 
 func TestGoAuth_ShowRoleList(t *testing.T) {
-	goAuth, err := New("root:root@tcp(127.0.0.1:3306)/test?charset=utf8")
+	goAuth, err := New(CoreAuthConfig{
+		UserName: "root",
+		PassWord: "root",
+		Host:     "127.0.0.1",
+		Port:     3306,
+		Database: "test",
+	})
 	if err != nil {
 		panic(err)
 	}
@@ -103,13 +117,49 @@ func TestGoAuth_ShowRoleList(t *testing.T) {
 }
 
 func TestGoAuth_GetRoleRules(t *testing.T) {
-	goAuth, err := New("root:root@tcp(127.0.0.1:3306)/test?charset=utf8")
+	goAuth, err := New(CoreAuthConfig{
+		UserName: "root",
+		PassWord: "root",
+		Host:     "127.0.0.1",
+		Port:     3306,
+		Database: "test",
+	})
 	if err != nil {
 		panic(err)
 	}
-	list, err := goAuth.GetRoleRules(1)
+	list, err := goAuth.GetRoleRules(5)
 	if err != nil {
 		t.Error(err)
 	}
 	fmt.Println(list)
+}
+
+func TestCoreAuth_VerifyAuth(t *testing.T) {
+	goAuth, err := New(CoreAuthConfig{
+		UserName: "root",
+		PassWord: "root",
+		Host:     "127.0.0.1",
+		Port:     3306,
+		Database: "test",
+	})
+	if err != nil {
+		panic(err)
+	}
+	auth, err := goAuth.VerifyAuth(2, "withdraw")
+	fmt.Println(auth, err)
+}
+
+func TestCoreAuth_GetUserRules(t *testing.T) {
+	goAuth, err := New(CoreAuthConfig{
+		UserName: "root",
+		PassWord: "root",
+		Host:     "127.0.0.1",
+		Port:     3306,
+		Database: "test",
+	})
+	if err != nil {
+		panic(err)
+	}
+	rules, err := goAuth.GetUserRules(2, 2)
+	fmt.Println(rules, err)
 }
