@@ -86,14 +86,6 @@ func RandNum(max int64) int64 {
 	return n.Int64()
 }
 
-const (
-	bufferChanSize = 10000
-)
-
-var (
-	bufferChan = make(chan []byte, bufferChanSize)
-)
-
 /*
 *
 获取指定范围的随机数
@@ -108,11 +100,20 @@ func N(min, max int) int {
 	return intn(max+(0-min)+1) - (0 - min)
 }
 
+func generateRandomData() []byte {
+	data := make([]byte, 4)
+	_, err := rand.Read(data)
+	if err != nil {
+		panic(err)
+	}
+	return data
+}
+
 func intn(max int) int {
 	if max <= 0 {
 		return max
 	}
-	n := int(binary.LittleEndian.Uint32(<-bufferChan)) % max
+	n := int(binary.LittleEndian.Uint32(generateRandomData())) % max
 	if (max > 0 && n < 0) || (max < 0 && n > 0) {
 		return -n
 	}
