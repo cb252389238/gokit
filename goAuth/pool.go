@@ -1,4 +1,4 @@
-package goAuth
+package coreAuth
 
 import "errors"
 
@@ -9,11 +9,11 @@ var (
 
 // Pool 基本方法
 type Pool interface {
-	Get() (interface{}, error)
+	Get() (any, error)
 
-	Put(interface{}) error
+	Put(any) error
 
-	Close(interface{}) error
+	Close(any) error
 
 	Release()
 

@@ -3,7 +3,7 @@ package response
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"yfapi/typedef/code"
+	"ori/typedef/code"
 )
 
 // 响应结构体

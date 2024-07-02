@@ -1,4 +1,4 @@
-package goAuth
+package coreAuth
 
 import (
 	"errors"
@@ -6,11 +6,9 @@ import (
 	"log"
 	"sync"
 	"time"
-	//"reflect"
 )
 
 var (
-	//ErrMaxActiveConnReached 连接池超限
 	ErrMaxActiveConnReached = errors.New("MaxActiveConnReached")
 )
 
@@ -23,11 +21,11 @@ type Config struct {
 	//最大空闲连接
 	MaxIdle int
 	//生成连接的方法
-	Factory func() (interface{}, error)
+	Factory func() (any, error)
 	//关闭连接的方法
-	Close func(interface{}) error
+	Close func(any) error
 	//检查连接是否有效的方法
-	Ping func(interface{}) error
+	Ping func(any) error
 	//连接最大空闲时间，超过该事件则将失效
 	IdleTimeout time.Duration
 }
@@ -40,9 +38,9 @@ type connReq struct {
 type channelPool struct {
 	mu                       sync.RWMutex
 	conns                    chan *idleConn
-	factory                  func() (interface{}, error)
-	close                    func(interface{}) error
-	ping                     func(interface{}) error
+	factory                  func() (any, error)
+	close                    func(any) error
+	ping                     func(any) error
 	idleTimeout, waitTimeOut time.Duration
 	maxActive                int
 	openingConns             int
@@ -50,7 +48,7 @@ type channelPool struct {
 }
 
 type idleConn struct {
-	conn interface{}
+	conn any
 	t    time.Time
 }
 
@@ -100,7 +98,7 @@ func (c *channelPool) getConns() chan *idleConn {
 }
 
 // Get 从pool中取一个连接
-func (c *channelPool) Get() (interface{}, error) {
+func (c *channelPool) Get() (any, error) {
 	conns := c.getConns()
 	if conns == nil {
 		return nil, ErrClosed
@@ -164,7 +162,7 @@ func (c *channelPool) Get() (interface{}, error) {
 }
 
 // Put 将连接放回pool中
-func (c *channelPool) Put(conn interface{}) error {
+func (c *channelPool) Put(conn any) error {
 	if conn == nil {
 		return errors.New("connection is nil. rejecting")
 	}
@@ -199,7 +197,7 @@ func (c *channelPool) Put(conn interface{}) error {
 }
 
 // Close 关闭单条连接
-func (c *channelPool) Close(conn interface{}) error {
+func (c *channelPool) Close(conn any) error {
 	if conn == nil {
 		return errors.New("connection is nil. rejecting")
 	}
@@ -213,7 +211,7 @@ func (c *channelPool) Close(conn interface{}) error {
 }
 
 // Ping 检查单条连接是否有效
-func (c *channelPool) Ping(conn interface{}) error {
+func (c *channelPool) Ping(conn any) error {
 	if conn == nil {
 		return errors.New("connection is nil. rejecting")
 	}

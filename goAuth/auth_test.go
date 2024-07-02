@@ -1,4 +1,4 @@
-package goAuth
+package coreAuth
 
 import (
 	"fmt"
