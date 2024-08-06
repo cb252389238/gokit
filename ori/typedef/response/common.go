@@ -8,36 +8,30 @@ import (
 
 // 响应结构体
 type Response struct {
-	Code      int    `json:"code"`
-	RequestId string `json:"requestId"` //唯一请求ID
-	Msg       string `json:"msg"`
-	Data      any    `json:"data"`
+	Code      int          `json:"code"`
+	RequestId string       `json:"requestId"` //唯一请求ID
+	Msg       string       `json:"msg"`
+	Data      any          `json:"data"`
+	c         *gin.Context `json:"-"`
 }
 
-func NewResponse(c *gin.Context) *Response {
-	return &Response{
-		Msg:       "ok",
+func SuccessResponse(c *gin.Context, data any) {
+	res := &Response{
+		Code:      int(code.SUCCESS_CODE),
 		RequestId: c.GetString("requestId"),
+		c:         c,
+		Msg:       code.SUCCESS_CODE.ErrorMsg(),
+		Data:      data,
 	}
+	c.JSON(http.StatusOK, res)
 }
 
-func (r *Response) Json(c *gin.Context) {
-	c.JSON(http.StatusOK, r)
-}
-
-func (r *Response) SetRequestId(requestId string) {
-	r.RequestId = requestId
-}
-
-func (r *Response) SetCode(code code.ErrCode) {
-	r.Code = int(code)
-	r.Msg = code.ErrorMsg()
-}
-
-func (r *Response) SetMsg(msg string) {
-	r.Msg = msg
-}
-
-func (r *Response) SetData(data any) {
-	r.Data = data
+func FailResponse(c *gin.Context, code code.ErrCode) {
+	res := &Response{
+		Code:      int(code),
+		RequestId: c.GetString("requestId"),
+		c:         c,
+		Msg:       code.ErrorMsg(),
+	}
+	c.JSON(http.StatusOK, res)
 }
