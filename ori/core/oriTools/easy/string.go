@@ -33,11 +33,13 @@ func PrivateIdNo(idNo string) string {
 	masked := ""
 	switch {
 	case len(idNo) > 14:
-		masked = idNo[0:4] + strings.Repeat("*", len(idNo)-2) + idNo[len(idNo)-2:]
-	case len(idNo) < 6:
-		masked = idNo[0:2] + strings.Repeat("*", len(idNo)-2) + idNo[len(idNo)-2:]
+		masked = idNo[0:4] + strings.Repeat("*", len(idNo)-6) + idNo[len(idNo)-2:]
+	case len(idNo) > 6 && len(idNo) <= 14:
+		masked = idNo[0:3] + strings.Repeat("*", len(idNo)-5) + idNo[len(idNo)-2:]
+	case len(idNo) <= 6 && len(idNo) > 3:
+		masked = strings.Repeat("*", len(idNo)-2) + idNo[len(idNo)-2:]
 	default:
-		masked = idNo[0:4] + strings.Repeat("*", len(idNo)-2) + idNo[len(idNo)-2:]
+		masked = strings.Repeat("*", len(idNo))
 	}
 	return masked
 }
