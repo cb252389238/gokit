@@ -9,7 +9,6 @@ import (
 	"ori/core/oriMonitor"
 	"ori/core/oriSignal"
 	"ori/internal/engine"
-	"ori/internal/service"
 	"ori/typedef"
 )
 
@@ -33,8 +32,6 @@ func Start() {
 	go http.Run(engine) //http服务
 	engine.Wg.Add(1)
 	go ws.Run(engine) //websocket服务
-	engine.Wg.Add(1)
-	service.Run(engine) //自定义服务
 	fmt.Println(typedef.Ico)
 	fmt.Printf("服务【%s】启动完成!]\r\n", oriConfig.GetHotConf().APP)
 	oriSignal.Notify(engine) //监听信号
