@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net"
 	"net/http"
+	"ori/app/http/router"
 	"ori/core/oriConfig"
 	"ori/core/oriLog"
 	"ori/core/oriSignal"
@@ -20,10 +21,10 @@ import (
 )
 
 var (
-	graceful              = flag.Bool("graceful-http", false, "listen on fd open 3 (internal use only)")
-	listener net.Listener = nil
-	err      error
-	wg       = &sync.WaitGroup{}
+	graceful                 = flag.Bool("graceful-http", false, "listen on fd open 3 (internal use only)")
+	listener    net.Listener = nil
+	err         error
+	reqEntityWg = &sync.WaitGroup{}
 )
 
 func Run(oriEngine *engine.OriEngine) {
@@ -35,10 +36,10 @@ func Run(oriEngine *engine.OriEngine) {
 	if !conf.Debug {
 		gin.SetMode(gin.ReleaseMode)
 	}
-	engine := SetupRouter(oriEngine)
+	e := router.SetupRouter(reqEntityWg)
 	server := &http.Server{
 		Addr:           fmt.Sprintf(":%d", conf.Http.Port),
-		Handler:        engine,
+		Handler:        e,
 		ReadTimeout:    5 * time.Second,
 		WriteTimeout:   5 * time.Second,
 		MaxHeaderBytes: 1 << 20,
@@ -81,7 +82,7 @@ func signalHandle(oriEngine *engine.OriEngine, server *http.Server) {
 					break
 				}
 				oriLog.LogInfo("http服务优雅退出")
-				wg.Wait() //登陆用户连接全部断开
+				reqEntityWg.Wait() //登陆用户连接全部断开
 				oriEngine.Signal <- syscall.SIGINT
 			case oriSignal.SIGUSR2: //平滑重启
 				err := reload() // 执行热重启函数
@@ -94,7 +95,7 @@ func signalHandle(oriEngine *engine.OriEngine, server *http.Server) {
 					oriLog.LogError(err.Error())
 					break
 				}
-				wg.Wait() //用户连接全部断开
+				reqEntityWg.Wait() //用户连接全部断开
 				oriEngine.Signal <- syscall.SIGINT
 			}
 		}

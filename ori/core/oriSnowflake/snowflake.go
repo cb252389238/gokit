@@ -17,3 +17,7 @@ func New(node int64) (*snowflake2.Node, error) {
 	})
 	return snowflake, err
 }
+
+func GetSnowId() string {
+	return snowflake.Generate().String()
+}

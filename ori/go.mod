@@ -6,8 +6,10 @@ require (
 	github.com/Shopify/sarama v1.38.1
 	github.com/blinkbean/dingtalk v0.0.0-20210905093040-7d935c0f7e19
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/gin-contrib/i18n v1.1.4
 	github.com/gin-gonic/gin v1.10.0
 	github.com/gorilla/websocket v1.5.0
+	github.com/nicksnyder/go-i18n/v2 v2.4.0
 	github.com/redis/go-redis/v9 v9.5.3
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/shirou/gopsutil/v3 v3.22.8
