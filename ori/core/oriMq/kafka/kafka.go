@@ -4,8 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/Shopify/sarama"
+	"github.com/IBM/sarama"
 	"log"
+	"ori/core/oriLog"
 	"time"
 )
 
@@ -69,8 +70,8 @@ func (c *consume) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama
 	defer fmt.Println("end")
 	for {
 		select {
-		case <-c.quit:
-			close(c.Close)
+		case <-c.Close:
+			log.Printf("kafka收到退出信号")
 			return nil
 		case message, ok := <-claim.Messages():
 			if !ok {
@@ -91,9 +92,13 @@ func (c *consume) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama
 
 func New(conf KafkaConf) (*Kafka, error) {
 	k := &Kafka{
-		&kafka{
+		kafka: &kafka{
 			errChan: make(chan error, 10),
-			consume: &consume{},
+			consume: &consume{
+				C:     make(chan ConsumerMessage, 100),
+				quit:  make(chan int),
+				Close: make(chan int),
+			},
 		},
 	}
 	//异步生产者
@@ -129,7 +134,7 @@ func New(conf KafkaConf) (*Kafka, error) {
 		//sarama.BalanceStrategyRange
 		//sarama.BalanceStrategySticky
 		config.Consumer.Group.Rebalance.GroupStrategies = []sarama.BalanceStrategy{
-			sarama.BalanceStrategySticky,
+			sarama.NewBalanceStrategySticky(),
 		}
 		config.Consumer.Return.Errors = true
 		config.Consumer.Offsets.AutoCommit.Enable = true
@@ -158,18 +163,17 @@ func New(conf KafkaConf) (*Kafka, error) {
 
 // 执行程序
 func (k *kafka) run() {
-	c := consume{
-		C:     make(chan ConsumerMessage, 10),
-		quit:  make(chan int),
-		Close: make(chan int),
-	}
-	k.consume = &c
 	go func() {
 		for {
-			if err := k.consumer.Consume(k.context, []string{k.topic}, &c); err != nil {
-				//log.Printf("kafka再平衡错误 err:%+v,topic:%+v\r\n", err, k.topic)
-			} else {
-				log.Printf("kafka发生再平衡计算 topic:%+v\r\n", k.topic)
+			select {
+			case <-k.context.Done():
+				return
+			case <-time.After(time.Second * 3):
+				if err := k.consumer.Consume(k.context, []string{k.topic}, k.consume); err != nil {
+					oriLog.LogError("kafka再平衡计算错误 err:%+v,topic:%s", err, k.topic)
+				} else {
+					oriLog.LogInfo("kafka再平衡计算 topic:%+v", k.topic)
+				}
 			}
 		}
 	}()
@@ -177,8 +181,9 @@ func (k *kafka) run() {
 		select {
 		case <-k.context.Done():
 			close(k.quit)
+			close(k.Close)
 			k.consumer.Close()
-			log.Printf("kafka收到退出信号 topic:%s\r\n", k.topic)
+			oriLog.Info("kafka退出完成 topic:%s", k.topic)
 			return
 		}
 	}
