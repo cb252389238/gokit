@@ -3,6 +3,7 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	"ori/app/http/middle"
+	"ori/oerror"
 	"sync"
 )
 
@@ -10,7 +11,8 @@ func SetupRouter(reqEntityWg *sync.WaitGroup) *gin.Engine {
 	router := gin.New() //实例化gin框架
 	router.Use(middle.Cors())
 	router.Use(middle.Recover())
-	router.Use(middle.RequstLogger())
+	router.Use(middle.RequestLogger())
+	router.Use(oerror.I18nHandler())
 	group := router.Group("/api")
 	SetLUserRouter(group, reqEntityWg)
 	return router

@@ -21,7 +21,7 @@ type RedisSets struct {
 	l     sync.RWMutex
 }
 
-func (r *RedisSets) Redis(key ...string) *redis.Client {
+func (r *RedisSets) rds(key ...string) *redis.Client {
 	r.l.RLock()
 	defer r.l.RUnlock()
 	name := "default"
@@ -38,7 +38,7 @@ func (r *RedisSets) Redis(key ...string) *redis.Client {
 func (r *RedisSets) Lock(ctx context.Context, redisName string, key string, lockTime time.Duration) (success bool, unlock func(), err error) {
 	value := time.Now().UnixMicro()
 	val := strconv.FormatInt(value, 10)
-	redisCli := r.Redis(redisName)
+	redisCli := r.rds(redisName)
 	stm, err := redisCli.SetNX(ctx, key, val, lockTime).Result()
 	if err != nil {
 		return false, nil, err
@@ -89,5 +89,5 @@ func Redis(keys ...string) *redis.Client {
 	if len(keys) > 0 {
 		key = keys[0]
 	}
-	return rds.Redis(key)
+	return rds.rds(key)
 }

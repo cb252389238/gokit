@@ -9,17 +9,6 @@ import (
 	"time"
 )
 
-// CustomResponseWriter 封装 gin ResponseWriter 用于获取回包内容。
-type CustomResponseWriter struct {
-	gin.ResponseWriter
-	body *bytes.Buffer
-}
-
-func (w CustomResponseWriter) Write(b []byte) (int, error) {
-	w.body.Write(b)
-	return w.ResponseWriter.Write(b)
-}
-
 func RequestLogger() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		requestId := oriSnowflake.GetSnowId()
@@ -48,4 +37,14 @@ func RequestLogger() gin.HandlerFunc {
 		respBody := string(crw.body.Bytes())
 		oriLog.LogInfo("【Response】:| %s | %s | %s | %s | (%v)\n", c.ClientIP(), c.Request.Method, c.Request.RequestURI, respBody, latency)
 	}
+}
+
+type CustomResponseWriter struct {
+	gin.ResponseWriter
+	body *bytes.Buffer
+}
+
+func (w CustomResponseWriter) Write(b []byte) (int, error) {
+	w.body.Write(b)
+	return w.ResponseWriter.Write(b)
 }

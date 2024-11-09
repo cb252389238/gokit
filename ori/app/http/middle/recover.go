@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"ori/core/oriLog"
 	"ori/oerror"
-	"ori/response"
+	"ori/oresponse"
 	"runtime"
 )
 
@@ -31,14 +31,14 @@ func Recover() gin.HandlerFunc {
 				oriLog.LogError("异常:%v", msg)
 				var errorCode any
 				switch v := r.(type) {
-				case oerror.I18nError:
+				case oerror.Error:
 					errorCode = v
 				case oerror.ErrCode: //解决除了api多语言接口返回信息错误被重置为未知错误
 					errorCode = v
 				default:
 					errorCode = oerror.ErrorCodeUnknown
 				}
-				response.FailResponse(c, errorCode)
+				oresponse.JsonResponse(c, errorCode, nil)
 				//终止后续接口调用，不加的话recover到异常后，还会继续执行接口里后续代码
 				c.Abort()
 			}

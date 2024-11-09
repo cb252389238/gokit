@@ -11,6 +11,6 @@ func SetLUserRouter(router *gin.RouterGroup, reqEntityWg *sync.WaitGroup) {
 	group := router.Group("/v1/user")
 	group.Use(middle.Auth())
 	{
-		group.GET("/userInfo", BaseRouter(reqEntityWg, handle_v1.GetUserInfo)) // 查询用户主页信息
+		group.POST("/userInfo", BaseRouter(reqEntityWg, handle_v1.GetUserInfo)) // 查询用户主页信息
 	}
 }

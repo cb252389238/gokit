@@ -2,6 +2,7 @@ package engine
 
 import (
 	"context"
+	"fmt"
 	"github.com/blinkbean/dingtalk"
 	cache2 "ori/core/oriCache"
 	"ori/core/oriConfig"
@@ -9,7 +10,10 @@ import (
 	log2 "ori/core/oriLog"
 	pool2 "ori/core/oriPool"
 	"ori/core/oriRedis"
+	"ori/core/oriSnowflake"
 	"ori/core/oriTools/cache"
+	"ori/core/oriTools/easy"
+	"ori/core/oriTools/snowflake"
 	"os"
 	"sync"
 )
@@ -28,6 +32,7 @@ type OriEngine struct {
 	Log        *log2.LocalLogger
 	Cache      *cache.Cache
 	WebHook    *dingtalk.DingTalk
+	Snowflake  *snowflake.Node
 }
 
 func NewOriEngine() *OriEngine {
@@ -44,6 +49,14 @@ func NewOriEngine() *OriEngine {
 		db = oriDb.NewDb()
 	} else {
 		db = nil
+	}
+	ip := easy.GetLocalIp()
+	intIp := easy.Ipv4StringToInt(ip)
+	node := intIp % 1000
+	fmt.Printf("ip:%s,intIp:%d,node:%d\r\n", ip, intIp, node)
+	snow, err := oriSnowflake.New(node)
+	if err != nil {
+		panic(err)
 	}
 	ctx := &OriEngine{
 		Wg:         &sync.WaitGroup{},
@@ -66,9 +79,10 @@ func NewOriEngine() *OriEngine {
 			100,
 			1000,
 		),
-		Log:     log2.NewLog(),
-		Cache:   cache2.New(),
-		WebHook: webHookCli,
+		Log:       log2.NewLog(),
+		Cache:     cache2.New(),
+		WebHook:   webHookCli,
+		Snowflake: snow,
 	}
 	return ctx
 }
