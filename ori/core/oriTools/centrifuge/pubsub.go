@@ -61,8 +61,8 @@ func New(platform []string) (*Publisher, error) {
 	return publisher, nil
 }
 
-func getUserId(uid, platform string) string {
-	return fmt.Sprintf("%s:%s", uid, platform)
+func getUid(userId, platform string) string {
+	return fmt.Sprintf("%s:%s", userId, platform)
 }
 
 func inArray(needle string, haystack []string) bool {
@@ -75,11 +75,11 @@ func inArray(needle string, haystack []string) bool {
 }
 
 // 订阅主题 topic主题 userId 用户id platform客户端类型
-func (p *Publisher) Subscribe(topic, uid, platform string) (*Subscriber, error) {
+func (p *Publisher) Subscribe(topic, userId, platform string) (*Subscriber, error) {
 	p.m.Lock()
 	defer p.m.Unlock()
-	if uid == "" {
-		return nil, errors.New("uid is empty")
+	if userId == "" {
+		return nil, errors.New("userId is empty")
 	}
 	if platform == "" {
 		return nil, errors.New("platform is empty")
@@ -91,16 +91,16 @@ func (p *Publisher) Subscribe(topic, uid, platform string) (*Subscriber, error) 
 		return nil, errors.New("platform is not exist")
 	}
 	var sub *Subscriber
-	userId := getUserId(uid, platform)
+	uid := getUid(userId, platform)
 	//用户是否已经创建订阅实体
-	if val, ok := p.users[userId]; ok {
+	if val, ok := p.users[uid]; ok {
 		sub = val
 		sub.Topic[topic] = struct{}{}
 	} else {
 		sub = &Subscriber{
 			C:        make(chan any, p.buffer), //消息接受通道
 			Topic:    map[topicType]struct{}{topic: {}},
-			uid:      userId,
+			uid:      uid,
 			store:    make([]snMsg, p.snLen),
 			platform: platform,
 		}
@@ -117,14 +117,14 @@ func (p *Publisher) Subscribe(topic, uid, platform string) (*Subscriber, error) 
 		}
 		p.subscribers[topic] = subSets
 	}
-	p.users[userId] = sub
+	p.users[uid] = sub
 	return sub, nil
 }
 
 // 退出订阅
-func (p *Publisher) UnSubscribe(topic, uid, platform string) error {
-	if uid == "" {
-		return errors.New("uid is empty")
+func (p *Publisher) UnSubscribe(topic, userId, platform string) error {
+	if userId == "" {
+		return errors.New("userId is empty")
 	}
 	if platform == "" {
 		return errors.New("platform is empty")
@@ -135,13 +135,13 @@ func (p *Publisher) UnSubscribe(topic, uid, platform string) error {
 	if !inArray(platform, p.platformArray) {
 		return errors.New("platform is not exist")
 	}
-	userId := getUserId(uid, platform)
+	uid := getUid(userId, platform)
 	p.m.Lock()
 	defer p.m.Unlock()
 	if subSets, ok := p.subscribers[topic]; ok {
-		delete(subSets, userId)
+		delete(subSets, uid)
 	}
-	if user, ok := p.users[userId]; ok {
+	if user, ok := p.users[uid]; ok {
 		delete(user.Topic, topic)
 	}
 	return nil
@@ -211,7 +211,7 @@ func (p *Publisher) PublishAll(message any, platform ...string) {
 }
 
 // 向单个用户发送主题
-func (p *Publisher) PublishToUser(uid string, message any, platform ...string) {
+func (p *Publisher) PublishToUser(userId string, message any, platform ...string) {
 	p.m.RLock()
 	defer p.m.RUnlock()
 	if len(platform) > 0 {
@@ -219,8 +219,8 @@ func (p *Publisher) PublishToUser(uid string, message any, platform ...string) {
 			if !inArray(plat, p.platformArray) {
 				continue
 			}
-			userId := getUserId(uid, plat)
-			if sub, ok := p.users[userId]; ok {
+			uid := getUid(userId, plat)
+			if sub, ok := p.users[uid]; ok {
 				offset := sub.sn % p.snLen
 				buildMsg := snMsg{
 					Sn:         sub.sn,
@@ -235,8 +235,8 @@ func (p *Publisher) PublishToUser(uid string, message any, platform ...string) {
 		}
 	} else {
 		for _, plat := range p.platformArray {
-			userId := getUserId(uid, plat)
-			if sub, ok := p.users[userId]; ok {
+			uid := getUid(userId, plat)
+			if sub, ok := p.users[uid]; ok {
 				offset := sub.sn % p.snLen
 				buildMsg := snMsg{
 					Sn:         sub.sn,
@@ -253,11 +253,11 @@ func (p *Publisher) PublishToUser(uid string, message any, platform ...string) {
 }
 
 // 发送补偿消息
-func (p *Publisher) Replier(uid, platform string, sn int64) {
+func (p *Publisher) Replier(userId, platform string, sn int64) {
 	p.m.RLock()
 	defer p.m.RUnlock()
-	userId := getUserId(uid, platform)
-	if sub, ok := p.users[userId]; ok {
+	uid := getUid(userId, platform)
+	if sub, ok := p.users[uid]; ok {
 		offset := sn % p.snLen
 		buildMsg := sub.store[offset]
 		if time.Now().Unix()-buildMsg.createTime > 60 {
