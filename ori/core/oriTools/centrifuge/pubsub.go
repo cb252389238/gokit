@@ -4,10 +4,13 @@ package centrifuge
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"strings"
 	"sync"
 	"time"
+)
+
+const (
+	TopicUserOnline = "user_online"
 )
 
 var publisher *Publisher
@@ -44,7 +47,7 @@ type Subscriber struct {
 }
 
 // 构建一个新的发布者对象
-func New(platform []string) (*Publisher, error) {
+func NewPublisher(platform []string) (*Publisher, error) {
 	if len(platform) == 0 {
 		return nil, errors.New("platform is empty")
 	}
@@ -59,10 +62,6 @@ func New(platform []string) (*Publisher, error) {
 		}
 	})
 	return publisher, nil
-}
-
-func getUid(userId, platform string) string {
-	return fmt.Sprintf("%s:%s", userId, platform)
 }
 
 func inArray(needle string, haystack []string) bool {

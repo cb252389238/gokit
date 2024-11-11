@@ -9,7 +9,7 @@ import (
 func TestPubsub(t *testing.T) {
 	//初始化一个发布者对象
 	platformArr := []string{"pc", "h5", "app"}
-	pub, err := New(platformArr)
+	pub, err := NewPublisher(platformArr)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -72,7 +72,7 @@ func TestPubsub(t *testing.T) {
 
 func BenchmarkName(b *testing.B) {
 	platformArr := []string{"pc", "h5", "app"}
-	pub, err := New(platformArr)
+	pub, err := NewPublisher(platformArr)
 	if err != nil {
 		b.Fatal(err)
 	}
