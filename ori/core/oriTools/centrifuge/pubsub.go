@@ -23,8 +23,7 @@ type Publisher struct {
 	buffer        int                                   //订阅队列缓存大小
 	subscribers   map[topicType]map[uidType]*Subscriber //主题订阅者集合
 	users         map[uidType]*Subscriber               //用户和订阅实例绑定关系
-	snowflake     *Node
-	snLen         int64 //详细补偿队列
+	snLen         int64                                 //详细补偿队列
 	platformArray []string
 }
 
@@ -50,13 +49,11 @@ func New(platform []string) (*Publisher, error) {
 		return nil, errors.New("platform is empty")
 	}
 	publisherOnce.Do(func() {
-		node, _ := NewNode(int64(1))
 		publisher = &Publisher{
 			m:             sync.RWMutex{},
 			buffer:        100,
 			subscribers:   make(map[topicType]map[uidType]*Subscriber),
 			users:         make(map[uidType]*Subscriber),
-			snowflake:     node,
 			snLen:         1000,
 			platformArray: platform,
 		}
