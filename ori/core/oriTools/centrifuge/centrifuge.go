@@ -39,16 +39,16 @@ type UserConnectInfo struct {
 }
 
 // 实例化
-func New(platform []string, lifeTime time.Duration) (*Centrifuge, error) {
+func New(platform []string, lifeTime time.Duration) error {
 	if len(platform) == 0 {
-		return nil, errors.New("platform is empty")
+		return errors.New("platform is empty")
 	}
 	if centrifuge != nil {
-		return nil, errors.New("centrifuge already exists")
+		return errors.New("centrifuge already exists")
 	}
 	pubsub, err := NewPublisher(platform)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	c := NewCache(NoExpiration, time.Second*10)
 	users := make(map[string]*UserConnectInfo)
@@ -59,7 +59,7 @@ func New(platform []string, lifeTime time.Duration) (*Centrifuge, error) {
 		users:         users,
 		cacheLifeTime: lifeTime,
 	}
-	return centrifuge, nil
+	return nil
 }
 
 // 返回实例
@@ -191,17 +191,16 @@ func (c *Centrifuge) Heartbeat(userId, platform string) {
 }
 
 // 添加
-func (c *Centrifuge) Add(userId, platform string, websocketConn *websocket.Conn) error {
-	if userId == "" || platform == "" || websocketConn == nil {
-		return errors.New("param error")
-	}
-	logicFunc := func(userId, platform string, websocketConn *websocket.Conn) error {
+func (c *Centrifuge) Add(userId, platform string, websocketConn *websocket.Conn) (*Subscriber, error) {
+	//if userId == "" || platform == "" || websocketConn == nil {
+	//	return nil, errors.New("param error")
+	//}
+	logicFunc := func(userId, platform string, websocketConn *websocket.Conn) (*Subscriber, error) {
 		c.l.Lock()
 		defer c.l.Unlock()
-		uid := getUid(userId, platform)
-		subscribe, err := c.publisher.Subscribe(TopicUserOnline, uid, platform)
+		subscribe, err := c.publisher.Subscribe(TopicUserOnline, userId, platform)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		user := &UserConnectInfo{
 			userId:        userId,
@@ -210,10 +209,10 @@ func (c *Centrifuge) Add(userId, platform string, websocketConn *websocket.Conn)
 			subscriber:    subscribe,
 		}
 		c.cache.set(getUid(userId, platform), user, c.cacheLifeTime)
-		c.users[uid] = user
+		c.users[getUid(userId, platform)] = user
 		c.incrUserNum(userId)
 		c.incrConnectNum()
-		return nil
+		return subscribe, nil
 	}
 	c.l.RLock()
 	beforeAddCallback := c.beforeAddCallback
@@ -222,20 +221,20 @@ func (c *Centrifuge) Add(userId, platform string, websocketConn *websocket.Conn)
 	if beforeAddCallback != nil {
 		err := beforeAddCallback(userId, platform)
 		if err != nil {
-			return fmt.Errorf("beforeAddCallback err:%+v", err)
+			return nil, fmt.Errorf("beforeAddCallback err:%+v", err)
 		}
 	}
-	err := logicFunc(userId, platform, websocketConn)
+	subscriber, err := logicFunc(userId, platform, websocketConn)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if afterAddCallback != nil {
 		err = c.afterAddCallback(userId, platform)
 		if err != nil {
-			return fmt.Errorf("afterAddCallback err:%+v", err)
+			return nil, fmt.Errorf("afterAddCallback err:%+v", err)
 		}
 	}
-	return nil
+	return subscriber, nil
 }
 
 // 删除用户
@@ -246,18 +245,17 @@ func (c *Centrifuge) Del(userId, platform string) error {
 	logicFunc := func(userId, platform string) error {
 		c.l.Lock()
 		defer c.l.Unlock()
-		uid := getUid(userId, platform)
-		c.cache.Delete(uid)
+		c.cache.Delete(getUid(userId, platform))
 		//退出所有订阅
-		subscribe, ok := c.users[uid]
+		subscribe, ok := c.users[getUid(userId, platform)]
 		if ok {
 			if subscribe.subscriber != nil {
 				for topic, _ := range subscribe.subscriber.Topic {
-					c.publisher.UnSubscribe(topic, uid, platform)
+					c.publisher.UnSubscribe(topic, userId, platform)
 				}
 			}
 		}
-		delete(c.users, uid)
+		delete(c.users, getUid(userId, platform))
 		c.decrUserNum(userId)
 		c.decrConnectNum()
 		if ok {
@@ -298,13 +296,12 @@ func (c *Centrifuge) Subscribe(userId, platform, sceneId string) error {
 	logicFunc := func(userId, platform, sceneId string) error {
 		c.l.Lock()
 		defer c.l.Unlock()
-		uid := getUid(userId, platform)
-		user, ok := c.users[uid]
+		user, ok := c.users[getUid(userId, platform)]
 		if !ok {
 			return errors.New("user not found")
 		}
 		user.sceneId = sceneId
-		_, err := c.publisher.Subscribe(sceneId, uid, platform)
+		_, err := c.publisher.Subscribe(sceneId, userId, platform)
 		if err != nil {
 			return err
 		}
@@ -341,15 +338,14 @@ func (c *Centrifuge) UnSubscribe(userId, platform, sceneId string) error {
 	logicFunc := func(userId, platform, sceneId string) error {
 		c.l.Lock()
 		defer c.l.Unlock()
-		uid := getUid(userId, platform)
-		user, ok := c.users[uid]
+		user, ok := c.users[getUid(userId, platform)]
 		if !ok {
 			return errors.New("user not found")
 		}
 		if user.sceneId == sceneId {
 			user.sceneId = ""
 		}
-		return c.publisher.UnSubscribe(sceneId, uid, platform)
+		return c.publisher.UnSubscribe(sceneId, userId, platform)
 	}
 	c.l.RLock()
 	beforeUnSubscribeCallback := c.beforeUnSubscribeCallback
