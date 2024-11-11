@@ -252,17 +252,19 @@ func (p *Publisher) PublishToUser(userId string, message any, platform ...string
 }
 
 // 发送补偿消息
-func (p *Publisher) Replier(userId, platform string, sn int64) {
+func (p *Publisher) Replier(userId, platform string, sn []int64) {
 	p.m.RLock()
 	defer p.m.RUnlock()
 	uid := getUid(userId, platform)
 	if sub, ok := p.users[uid]; ok {
-		offset := sn % p.snLen
-		buildMsg := sub.store[offset]
-		if time.Now().Unix()-buildMsg.createTime > 60 {
-			return
+		for _, v := range sn {
+			offset := v % p.snLen
+			buildMsg := sub.store[offset]
+			if time.Now().Unix()-buildMsg.createTime > 60 {
+				return
+			}
+			buildMsgByte, _ := json.Marshal(buildMsg)
+			sub.C <- string(buildMsgByte)
 		}
-		buildMsgByte, _ := json.Marshal(buildMsg)
-		sub.C <- string(buildMsgByte)
 	}
 }
