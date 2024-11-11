@@ -1,4 +1,4 @@
-package pubsub
+package centrifuge
 
 import (
 	"fmt"
@@ -64,8 +64,31 @@ func TestPubsub(t *testing.T) {
 	pub.PublishToUser("1001", "推送给1001-pc用户的消息", "pc")
 	time.Sleep(time.Second)
 	fmt.Println("1001-pc退出订阅")
-	pub.Exit("topic1", "1001", "pc")
+	pub.UnSubscribe("topic1", "1001", "pc")
 	time.Sleep(time.Second)
 	fmt.Println("向topic1推送消息，1001-app，1002-app收到消息")
 	pub.Publish("topic1", "推送给订阅topic1的用户的消息")
+}
+
+func BenchmarkName(b *testing.B) {
+	platformArr := []string{"pc", "h5", "app"}
+	pub, err := New(platformArr)
+	if err != nil {
+		b.Fatal(err)
+	}
+	for i := 0; i < 10000; i++ {
+		pub.Subscribe("topic:1", fmt.Sprintf("user:%d", i), "app")
+		pub.Subscribe("topic:2", fmt.Sprintf("user:%d", i), "h5")
+		pub.Subscribe("topic:3", fmt.Sprintf("user:%d", i), "pc")
+	}
+	for i := 0; i < b.N; i++ {
+		switch i % 3 {
+		case 0:
+			go pub.Publish("topic:1", "推送给订阅topic1的用户的消息")
+		case 1:
+			go pub.Publish("topic:2", "推送给订阅topic2的用户的消息")
+		case 2:
+			go pub.Publish("topic:3", "推送给订阅topic3的用户的消息")
+		}
+	}
 }

@@ -1,11 +1,10 @@
 // 发布订阅模型实现
-package pubsub
+package centrifuge
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"reflect"
 	"strings"
 	"sync"
 	"time"
@@ -69,20 +68,10 @@ func getUserId(uid, platform string) string {
 	return fmt.Sprintf("%s:%s", uid, platform)
 }
 
-func inArray(needle any, haystack any) bool {
-	val := reflect.ValueOf(haystack)
-	switch val.Kind() {
-	case reflect.Slice, reflect.Array:
-		for i := 0; i < val.Len(); i++ {
-			if reflect.DeepEqual(needle, val.Index(i).Interface()) {
-				return true
-			}
-		}
-	case reflect.Map:
-		for _, k := range val.MapKeys() {
-			if reflect.DeepEqual(needle, val.MapIndex(k).Interface()) {
-				return true
-			}
+func inArray(needle string, haystack []string) bool {
+	for _, v := range haystack {
+		if v == needle {
+			return true
 		}
 	}
 	return false
@@ -136,7 +125,7 @@ func (p *Publisher) Subscribe(topic, uid, platform string) (*Subscriber, error) 
 }
 
 // 退出订阅
-func (p *Publisher) Exit(topic, uid, platform string) error {
+func (p *Publisher) UnSubscribe(topic, uid, platform string) error {
 	if uid == "" {
 		return errors.New("uid is empty")
 	}
@@ -165,7 +154,8 @@ func (p *Publisher) Exit(topic, uid, platform string) error {
 func (p *Publisher) Publish(topic string, message any, platform ...string) {
 	p.m.RLock()
 	defer p.m.RUnlock()
-	if subSets, ok := p.subscribers[topic]; ok {
+	subSets, ok := p.subscribers[topic]
+	if ok {
 		for _, v := range subSets {
 			split := strings.Split(v.uid, ":")
 			if len(split) != 2 {

@@ -1,4 +1,4 @@
-package pubsub
+package centrifuge
 
 import (
 	"encoding/base64"
