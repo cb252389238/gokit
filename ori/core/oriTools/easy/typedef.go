@@ -1,4 +1,4 @@
-package php
+package easy
 
 type PHP_ARRAY interface {
 	[]uint | []uint8 | []uint16 | []uint32 |

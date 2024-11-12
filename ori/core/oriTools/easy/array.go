@@ -1,17 +1,13 @@
-package php
+package easy
 
 import (
-	crand "crypto/rand"
-	"math/big"
 	"math/rand"
 	"reflect"
 	"time"
 )
 
-/*
-多个数组切片合成一个数组切片
-*/
-func Array_merge[T comparable](a ...[]T) []T {
+// 合并数组切片
+func ArrayMerge[T comparable](a ...[]T) []T {
 	if len(a) <= 0 {
 		return []T{}
 	}
@@ -21,17 +17,13 @@ func Array_merge[T comparable](a ...[]T) []T {
 	}
 	res := make([]T, 0, l)
 	for _, arr := range a {
-		for _, v := range arr {
-			res = append(res, v)
-		}
+		res = append(res, arr...)
 	}
 	return res
 }
 
-/*
-截取切片数组中得一部分
-*/
-func Array_slice[T comparable](arr []T, start, length int) []T {
+// 截取切片数组中得一部分
+func ArrayCut[T comparable](arr []T, start, length int) []T {
 	res := []T{}
 	if start > len(arr)-1 {
 		return res
@@ -42,11 +34,8 @@ func Array_slice[T comparable](arr []T, start, length int) []T {
 	return arr[start : start+length]
 }
 
-/*
-返回差集
-*/
-
-func Array_diff[T comparable](arr ...[]T) []T {
+// 返回切片差集
+func ArrayDiff[T comparable](arr ...[]T) []T {
 	res := []T{}
 	if len(arr) <= 0 {
 		return res
@@ -65,11 +54,8 @@ func Array_diff[T comparable](arr ...[]T) []T {
 	return res
 }
 
-/*
-返回交集
-*/
-
-func Array_intersect[T comparable](arr ...[]T) []T {
+// 获取切片交集
+func ArrayIntersect[T comparable](arr ...[]T) []T {
 	res := []T{}
 	if len(arr) <= 0 {
 		return res
@@ -88,21 +74,8 @@ func Array_intersect[T comparable](arr ...[]T) []T {
 	return res
 }
 
-/*
-检查键名是否在数组中
-*/
-
-func Array_key_exists[T comparable](key T, arr map[T]any) bool {
-	if _, ok := arr[key]; ok {
-		return true
-	}
-	return false
-}
-
-/*
-检查val是否在数组中
-*/
-func In_array(needle any, haystack any) bool {
+// 检测元素是否在切片中
+func InArray(needle any, haystack any) bool {
 	val := reflect.ValueOf(haystack)
 	switch val.Kind() {
 	case reflect.Slice, reflect.Array:
@@ -117,21 +90,17 @@ func In_array(needle any, haystack any) bool {
 				return true
 			}
 		}
+	default:
+		return false
 	}
 	return false
 }
 
-/*
-获取数组元素数量
-*/
-func Count[T phpArray](arr T) int {
-	return len(arr)
-}
-
-/*
-*数组值去重
- */
-func Array_unique[T comparable](arr []T) []T {
+// 去重
+func ArrayUnique[T comparable](arr []T) []T {
+	if arr == nil || len(arr) == 0 {
+		return arr
+	}
 	size := len(arr)
 	result := make([]T, 0, size)
 	temp := map[T]struct{}{}
@@ -144,23 +113,18 @@ func Array_unique[T comparable](arr []T) []T {
 	return result
 }
 
-/*
-从数组中随机抽出n个元素
-*/
-func Array_rand[T comparable](elements []T) []T {
-	c, _ := crand.Int(crand.Reader, big.NewInt(99999))
-	r := rand.New(rand.NewSource(time.Now().UnixNano() + c.Int64()))
-	n := make([]T, len(elements))
+// 从数组中随机抽出n个元素
+func ArrayRand[T comparable](elements []T, n int) []T {
+	r := rand.New(rand.NewSource(time.Now().UnixNano() + rand.Int63n(9999999)))
+	res := make([]T, len(elements))
 	for i, v := range r.Perm(len(elements)) {
-		n[i] = elements[v]
+		res[i] = elements[v]
 	}
-	return n
+	return res[0:n]
 }
 
-/*
-返回数组中所有键组成新得数组
-*/
-func Array_keys(elements map[any]any) []any {
+// 返回数组中所有键组成新得数组
+func ArrayKeys(elements map[any]any) []any {
 	i, keys := 0, make([]any, len(elements))
 	for key := range elements {
 		keys[i] = key
@@ -169,9 +133,7 @@ func Array_keys(elements map[any]any) []any {
 	return keys
 }
 
-/*
-返回数组中所有得值
-*/
+// 返回数组中所有得值
 func ArrayValues(elements map[any]any) []any {
 	i, vals := 0, make([]any, len(elements))
 	for _, val := range elements {
@@ -181,10 +143,8 @@ func ArrayValues(elements map[any]any) []any {
 	return vals
 }
 
-/*
-反转数组得键值对
-*/
-func Array_flip[T1 comparable, T2 comparable](m map[T1]T2) map[T2]T1 {
+// 反转数组得键值对
+func ArrayFlip[T1 comparable, T2 comparable](m map[T1]T2) map[T2]T1 {
 	n := make(map[T2]T1)
 	for i, v := range m {
 		n[v] = i
@@ -192,20 +152,16 @@ func Array_flip[T1 comparable, T2 comparable](m map[T1]T2) map[T2]T1 {
 	return n
 }
 
-/*
-数组反转
-*/
-func Array_reverse[T comparable](s []T) []T {
+// 数组反转
+func ArrayReverse[T comparable](s []T) []T {
 	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
 		s[i], s[j] = s[j], s[i]
 	}
 	return s
 }
 
-/*
-统计数组中元素出现得次数
-*/
-func Array_count_values[T comparable](s []T) map[T]int {
+// 统计数组中元素出现得次数
+func ArrayCountValues[T comparable](s []T) map[T]int {
 	r := make(map[T]int)
 	for _, v := range s {
 		if c, ok := r[v]; ok {
@@ -217,9 +173,7 @@ func Array_count_values[T comparable](s []T) map[T]int {
 	return r
 }
 
-/*
-打乱数组中得元素
-*/
+// 打乱数组中得元素
 func Shuffle(array any) {
 	valueOf := reflect.ValueOf(array)
 	if valueOf.Type().Kind() != reflect.Slice {
@@ -229,46 +183,10 @@ func Shuffle(array any) {
 	if length < 2 {
 		return
 	}
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	r := rand.New(rand.NewSource(time.Now().UnixNano() + rand.Int63n(9999999)))
 	swapper := reflect.Swapper(array)
 	for i := 0; i < length; i++ {
 		j := r.Intn(length)
 		swapper(i, j)
 	}
-}
-
-/*
-删除数组中得第一个元素
-*/
-func Array_shift[T comparable](array []T) []T {
-	if len(array) == 0 {
-		return array
-	}
-	return array[1:]
-}
-
-/*
-删除数组中最后一个元素
-*/
-func Array_pop[T comparable](array []T) []T {
-	if len(array) == 0 {
-		return array
-	}
-	return array[0 : len(array)-1]
-}
-
-/*
-在数组尾部插入元素
-*/
-func Array_push[T comparable](array []T, val ...T) []T {
-	return append(array, val...)
-}
-
-/*
-在数组开头插入元素
-*/
-
-func Array_unshift[T comparable](array *[]T, values ...T) int {
-	*array = append(values, *array...)
-	return len(*array)
 }
