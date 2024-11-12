@@ -1,13 +1,16 @@
 package easy
 
 import (
-	"os"
 	"reflect"
 	"strconv"
 	"strings"
 )
 
+// 判断是否为空
 func Empty(val interface{}) bool {
+	if val == nil {
+		return true
+	}
 	v := reflect.ValueOf(val)
 	switch v.Kind() {
 	case reflect.String, reflect.Array:
@@ -28,7 +31,8 @@ func Empty(val interface{}) bool {
 	return reflect.DeepEqual(val, reflect.Zero(v.Type()).Interface())
 }
 
-func Is_numeric(val any) bool {
+// 判断是否为数字
+func IsNumeric(val any) bool {
 	switch val := val.(type) {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 		return true
@@ -79,30 +83,8 @@ func Is_numeric(val any) bool {
 	return false
 }
 
-func Exit(status int) {
-	os.Exit(status)
-}
-
-func Die(status int) {
-	os.Exit(status)
-}
-
-func Getenv(varname string) string {
-	return os.Getenv(varname)
-}
-
-func Putenv(setting string) error {
-	s := strings.Split(setting, "=")
-	if len(s) != 2 {
-		panic("setting: invalid")
-	}
-	return os.Setenv(s[0], s[1])
-}
-
-/*
-版本比较
-*/
-func Version_compare(version1, version2, operator string) bool {
+// 版本比较
+func VersionCompare(version1, version2, operator string) bool {
 	var vcompare func(string, string) int
 	var canonicalize func(string) string
 	var special func(string, string) int

@@ -3,92 +3,29 @@ package easy
 import (
 	"bytes"
 	"encoding/base64"
-	"encoding/json"
+	"errors"
 	"fmt"
+	"golang.org/x/text/encoding"
+	"golang.org/x/text/encoding/ianaindex"
+	"golang.org/x/text/transform"
 	"hash/crc32"
+	"html"
+	"io"
+	"io/ioutil"
 	"math/rand"
 	"net/url"
 	"strings"
 	"time"
-	"unicode"
 	"unicode/utf8"
 )
 
-/*
-返回字符串长度
-*/
-func Strlen(str string) int {
-	return len(str)
-}
-
-/*
-返回汉字长度
-*/
-func Mb_strlen(str string) int {
+// 字符串长度
+func MbStrlen(str string) int {
 	return utf8.RuneCountInString(str)
 }
 
-/*
-字符串替换
-*/
-func Str_replace(search, replace, subject string, count int) string {
-	return strings.Replace(subject, search, replace, count)
-}
-
-/*
-分割字符串
-*/
-func Explode(delimiter, str string) []string {
-	return strings.Split(str, delimiter)
-}
-
-/*
-合并字符串
-*/
-func Implode(glue string, pieces []string) string {
-	var buf bytes.Buffer
-	l := len(pieces)
-	for _, str := range pieces {
-		buf.WriteString(str)
-		if l--; l > 0 {
-			buf.WriteString(glue)
-		}
-	}
-	return buf.String()
-}
-
-func Substr(str string, start uint, length int) string {
-	if length < -1 {
-		return str
-	}
-	switch {
-	case length == -1:
-		return str[start:]
-	case length == 0:
-		return ""
-	}
-	end := int(start) + length
-	if end > len(str) {
-		end = len(str)
-	}
-	return str[start:end]
-}
-
-/*
-转成小写
-*/
-func Strtolower(str string) string {
-	return strings.ToLower(str)
-}
-
-func Strtoupper(str string) string {
-	return strings.ToUpper(str)
-}
-
-/*
-反转字符串
-*/
-func Strrev(str string) string {
+// 字符串反转
+func StrRev(str string) string {
 	runes := []rune(str)
 	for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
 		runes[i], runes[j] = runes[j], runes[i]
@@ -96,17 +33,8 @@ func Strrev(str string) string {
 	return string(runes)
 }
 
-/*
-字符重复n次
-*/
-func Str_repeat(input string, multiplier int) string {
-	return strings.Repeat(input, multiplier)
-}
-
-/*
-随机打乱字符串
-*/
-func Str_shuffle(str string) string {
+// 随机打乱字符串
+func StrShuffle(str string) string {
 	runes := []rune(str)
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	s := make([]rune, len(runes))
@@ -116,12 +44,9 @@ func Str_shuffle(str string) string {
 	return string(s)
 }
 
-/*
-解析字符串
-*/
-func Parse_str(encodedString string, result map[string]any) error {
+// 解析字符串
+func ParseStr(encodedString string, result map[string]any) error {
 	var build func(map[string]any, []string, any) error
-
 	build = func(result map[string]any, keys []string, value any) error {
 		length := len(keys)
 		key := strings.Trim(keys[0], "'\"")
@@ -246,55 +171,24 @@ func Parse_str(encodedString string, result map[string]any) error {
 	return nil
 }
 
-/*
-去除两边得某些字符串
-*/
-func Trim(str string, characterMask ...string) string {
-	if len(characterMask) == 0 {
-		return strings.TrimSpace(str)
-	}
-	return strings.Trim(str, characterMask[0])
-}
-
-func Ltrim(str string, characterMask ...string) string {
-	if len(characterMask) == 0 {
-		return strings.TrimLeftFunc(str, unicode.IsSpace)
-	}
-	return strings.TrimLeft(str, characterMask[0])
-}
-
-func Rtrim(str string, characterMask ...string) string {
-	if len(characterMask) == 0 {
-		return strings.TrimRightFunc(str, unicode.IsSpace)
-	}
-	return strings.TrimRight(str, characterMask[0])
-}
-
-func Json_decode(data string, val any) error {
-	return json.Unmarshal([]byte(data), val)
-}
-
-func Json_encode(val any) ([]byte, error) {
-	return json.Marshal(val)
-}
-
+// crc32
 func Crc32(str string) uint32 {
 	return crc32.ChecksumIEEE([]byte(str))
 }
 
-func Urlencode(str string) string {
+func UrlEncode(str string) string {
 	return url.QueryEscape(str)
 }
 
-func Urldecode(str string) (string, error) {
+func UrlDecode(str string) (string, error) {
 	return url.QueryUnescape(str)
 }
 
-func Base64_encode(str string) string {
+func Base64Encode(str string) string {
 	return base64.StdEncoding.EncodeToString([]byte(str))
 }
 
-func Base64_decode(str string) (string, error) {
+func Base64Decode(str string) (string, error) {
 	switch len(str) % 4 {
 	case 2:
 		str += "=="
@@ -308,44 +202,81 @@ func Base64_decode(str string) (string, error) {
 	return string(data), nil
 }
 
-// 脱敏手机号
-func PrivateMobile(mobile string) string {
-	masked := ""
-	if len(mobile) > 5 {
-		masked = mobile[:3] + strings.Repeat("*", len(mobile)-5) + mobile[len(mobile)-2:]
-	}
-	return masked
+// html解码
+func HtmlDecode(str string) string {
+	return html.UnescapeString(str)
 }
 
-// 脱敏名字
-func PrivateRealName(name string) string {
-	masked := ""
-	runeName := []rune(name)
-	switch {
-	case len(runeName) > 3:
-		masked = string(runeName[0]) + strings.Repeat("*", len(runeName)-2) + string(runeName[len(runeName)-1:])
-	case len(runeName) == 3:
-		masked = string(runeName[0]) + strings.Repeat("*", 1) + string(runeName[len(runeName)-1:])
-	case len(runeName) == 2:
-		masked = string(runeName[0]) + strings.Repeat("*", 1)
-	default:
-		masked = name
-	}
-	return masked
+// html编码
+func HtmlEncode(str string) string {
+	return html.EscapeString(str)
 }
 
-// 脱敏身份证号
-func PrivateIdNo(idNo string) string {
-	masked := ""
-	switch {
-	case len(idNo) > 14:
-		masked = idNo[0:4] + strings.Repeat("*", len(idNo)-6) + idNo[len(idNo)-2:]
-	case len(idNo) > 6 && len(idNo) <= 14:
-		masked = idNo[0:3] + strings.Repeat("*", len(idNo)-5) + idNo[len(idNo)-2:]
-	case len(idNo) <= 6 && len(idNo) > 3:
-		masked = strings.Repeat("*", len(idNo)-2) + idNo[len(idNo)-2:]
-	default:
-		masked = strings.Repeat("*", len(idNo))
+var (
+	// Alias for charsets.
+	charsetAlias = map[string]string{
+		"HZGB2312": "HZ-GB-2312",
+		"hzgb2312": "HZ-GB-2312",
+		"GB2312":   "HZ-GB-2312",
+		"gb2312":   "HZ-GB-2312",
 	}
-	return masked
+)
+
+// 转换字符编码
+// dstCharset 目标编码   srcCharset 源编码
+func Convert(dstCharset string, srcCharset string, src string) (dst string, err error) {
+	if dstCharset == srcCharset {
+		return src, nil
+	}
+	dst = src
+	if srcCharset != "UTF-8" {
+		if e := getEncoding(srcCharset); e != nil {
+			tmp, err := io.ReadAll(
+				transform.NewReader(bytes.NewReader([]byte(src)), e.NewDecoder()),
+			)
+			if err != nil {
+				return "", err
+			}
+			src = string(tmp)
+		} else {
+			return dst, errors.New(fmt.Sprintf("unsupported srcCharset: %s", srcCharset))
+		}
+	}
+	if dstCharset != "UTF-8" {
+		if e := getEncoding(dstCharset); e != nil {
+			tmp, err := ioutil.ReadAll(
+				transform.NewReader(bytes.NewReader([]byte(src)), e.NewEncoder()),
+			)
+			if err != nil {
+				return "", errors.New(fmt.Sprintf("unsupported srcCharset: %s", dstCharset))
+			}
+			dst = string(tmp)
+		} else {
+			return dst, errors.New(fmt.Sprintf("unsupported srcCharset: %s", dstCharset))
+		}
+	} else {
+		dst = src
+	}
+	return dst, nil
+}
+
+// 字符转utf8
+// srcCharset 源编码 src 需要转的字符串
+func ToUTF8(srcCharset string, src string) (dst string, err error) {
+	return Convert("UTF-8", srcCharset, src)
+}
+
+// utf8转其他编码
+func UTF8To(dstCharset string, src string) (dst string, err error) {
+	return Convert(dstCharset, "UTF-8", src)
+}
+
+func getEncoding(charset string) encoding.Encoding {
+	if c, ok := charsetAlias[charset]; ok {
+		charset = c
+	}
+	if e, err := ianaindex.MIB.Encoding(charset); err == nil && e != nil {
+		return e
+	}
+	return nil
 }

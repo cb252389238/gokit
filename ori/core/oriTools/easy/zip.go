@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 )
 
+// 压缩
 func GzipEncode(input []byte) ([]byte, error) {
 	// 创建一个新的 byte 输出流
 	var buf bytes.Buffer
@@ -30,6 +31,7 @@ func GzipEncode(input []byte) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
+// 解压
 func GzipDecode(input []byte) ([]byte, error) {
 	// 创建一个新的 gzip.Reader
 	bytesReader := bytes.NewReader(input)

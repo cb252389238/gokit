@@ -30,6 +30,7 @@ func GetRelBinPath() string {
 	return "./" + path + "/"
 }
 
+// 获取执行程序路径
 func GetRootPath() string {
 	if runtime.GOOS == "linux" {
 		return getAbsBinPath()

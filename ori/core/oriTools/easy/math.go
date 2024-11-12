@@ -1,11 +1,7 @@
 package easy
 
 import (
-	crand "crypto/rand"
 	"math"
-	"math/big"
-	"math/rand"
-	"time"
 )
 
 // 根据坐标计算角度
@@ -18,7 +14,7 @@ func Angle(x, y float64) float64 {
 }
 
 type mathVal interface {
-	int8 | int16 | int32 | int64 | int | float32 | float64
+	int8 | int16 | int32 | int64 | int | float32 | float64 | uint | uint8 | uint16 | uint32 | uint64
 }
 
 /*
@@ -43,16 +39,9 @@ func Floor[T float32 | float64](number T) T {
 }
 
 /*
-获取最大值
-*/
-type mathVal2 interface {
-	~int8 | ~int16 | ~int32 | ~int64 | ~int | ~float32 | ~float64
-}
-
-/*
 返回最大值
 */
-func Max[T mathVal2](nums ...T) T {
+func Max[T mathVal](nums ...T) T {
 	if len(nums) < 2 {
 		return 0
 	}
@@ -66,7 +55,7 @@ func Max[T mathVal2](nums ...T) T {
 /*
 返回最小值
 */
-func Min[T mathVal2](nums ...T) T {
+func Min[T mathVal](nums ...T) T {
 	if len(nums) < 2 {
 		return 0
 	}
@@ -75,13 +64,4 @@ func Min[T mathVal2](nums ...T) T {
 		max = T(math.Min(float64(max), float64(nums[i])))
 	}
 	return max
-}
-
-/*
-返回随机数
-*/
-func Mt_rand(min, max int64) int64 {
-	n, _ := crand.Int(crand.Reader, big.NewInt(max))
-	r := rand.New(rand.NewSource(time.Now().UnixNano() + n.Int64()))
-	return r.Int63n(max-min+1) + min
 }

@@ -4,7 +4,6 @@ import (
 	"crypto/rand"
 	"encoding/binary"
 	"math/big"
-	"strconv"
 )
 
 var (
@@ -50,32 +49,6 @@ func newLenChars(length int, chars []byte) string {
 			}
 		}
 	}
-}
-
-/*
-*
-获取指定长度的随机数字字符串
-*/
-func RandNumStr(len int) string {
-	var minNum int64 = 1
-	for i := 1; i < len; i++ {
-		minNum *= 10
-	}
-	var maxNum int64 = 1
-	for j := 0; j < len; j++ {
-		maxNum *= 10
-	}
-	maxNum = maxNum - 1
-	maxBigInt := big.NewInt(maxNum)
-	i, _ := rand.Int(rand.Reader, maxBigInt)
-	var randNum string
-	if i.Int64() < minNum {
-		return RandNumStr(len)
-	} else {
-		randNum = strconv.FormatInt(i.Int64(), 10)
-		return randNum
-	}
-
 }
 
 /*
