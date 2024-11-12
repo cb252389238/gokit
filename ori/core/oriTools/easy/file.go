@@ -13,7 +13,6 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
-	"time"
 )
 
 // 创建目录
@@ -42,7 +41,7 @@ func FileInfo(file string) (string, string, string) {
 }
 
 // 检查是否是图片文件
-func CheckImageFile(path, style string) (string, error) {
+func CheckImageFile(path, style string) bool {
 	f, err := os.Open(path)
 	if err != nil {
 		fmt.Errorf("打开文件失败 %s", err.Error())
@@ -54,32 +53,13 @@ func CheckImageFile(path, style string) (string, error) {
 		_, err = png.Decode(f)
 	case "GIF":
 		_, err = gif.Decode(f)
+	default:
+		return false
 	}
 	if err != nil {
-		fmt.Errorf("校验文件类型失败 %s", err.Error())
-		return "", err
+		return false
 	}
-	return "", nil
-}
-
-// 写入文件
-func WriteToFile(fileName, content, path string) error {
-	fileName = fileName + ".logs"
-	_, err := MakeDir(path)
-	if err != nil {
-		return err
-	}
-	fconn, err := MakeFile(path, fileName)
-	if err != nil {
-		return err
-	}
-	content = "[" + time.Now().Format("2006-01-02 15:04:05") + "]" + "\r\n" + content + "\r\n"
-	_, err = fconn.WriteString(content)
-	if err != nil {
-		return err
-	}
-	defer fconn.Close()
-	return nil
+	return true
 }
 
 // 创建文件
@@ -141,7 +121,8 @@ func FileType(filePath string) (string, error) {
 	return byType[len(byType)-1][1:], nil
 }
 
-func File_exists(filename string) bool {
+// 判断文件是否存在
+func FileExists(filename string) bool {
 	_, err := os.Stat(filename)
 	if err != nil && os.IsNotExist(err) {
 		return false
@@ -149,7 +130,8 @@ func File_exists(filename string) bool {
 	return true
 }
 
-func Is_file(filename string) bool {
+// 判断是否文件
+func IsFile(filename string) bool {
 	fd, err := os.Stat(filename)
 	if err != nil && os.IsNotExist(err) {
 		return false
@@ -157,7 +139,8 @@ func Is_file(filename string) bool {
 	return !fd.IsDir()
 }
 
-func Is_dir(filename string) (bool, error) {
+// 判断是否目录
+func IsDir(filename string) (bool, error) {
 	fd, err := os.Stat(filename)
 	if err != nil {
 		return false, err
@@ -166,6 +149,7 @@ func Is_dir(filename string) (bool, error) {
 	return fm.IsDir(), nil
 }
 
+// 文件大小
 func Filesize(filename string) (int64, error) {
 	info, err := os.Stat(filename)
 	if err != nil && os.IsNotExist(err) {
@@ -174,19 +158,18 @@ func Filesize(filename string) (int64, error) {
 	return info.Size(), nil
 }
 
-func File_put_contents(filename string, data string, mode os.FileMode) error {
-	return os.WriteFile(filename, []byte(data), mode)
-}
-
-func File_get_contents(filename string) (string, error) {
+// 读取文件内容
+func FileGetContents(filename string) (string, error) {
 	data, err := os.ReadFile(filename)
 	return string(data), err
 }
 
+// 删除文件
 func Delete(filename string) error {
 	return os.Remove(filename)
 }
 
+// 复制文件
 func Copy(source, dest string) (bool, error) {
 	fd1, err := os.Open(source)
 	if err != nil {
@@ -205,22 +188,39 @@ func Copy(source, dest string) (bool, error) {
 	return true, nil
 }
 
+// 更改文件名
 func Rename(oldname, newname string) error {
 	return os.Rename(oldname, newname)
 }
 
-func Mkdir(filename string, mode os.FileMode) error {
-	return os.Mkdir(filename, mode)
-}
-
-func Realpath(path string) (string, error) {
+// 返回给定路径的绝对路径。
+func AbsPath(path string) (string, error) {
 	return filepath.Abs(path)
 }
 
+// 返回文件名
 func Basename(path string) string {
 	return filepath.Base(path)
 }
 
-func Fclose(handle *os.File) error {
-	return handle.Close()
+// 向文件内追加内容
+func AppendFile(filePath string, content string) error {
+	// 以追加模式打开文件
+	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return fmt.Errorf("打开文件失败: %w", err)
+	}
+	defer file.Close()
+
+	// 向文件尾部追加内容
+	_, err = file.WriteString(content + "\n")
+	if err != nil {
+		return fmt.Errorf("写入文件失败: %w", err)
+	}
+	return nil
+}
+
+// 覆盖文件内容
+func OverwriteFile(filePath string, content string) error {
+	return os.WriteFile(filePath, []byte(content), 0666)
 }

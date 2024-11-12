@@ -21,7 +21,6 @@ import (
 	"errors"
 	"golang.org/x/crypto/sha3"
 	"strings"
-	"time"
 )
 
 // md5加密
@@ -63,7 +62,7 @@ func TripleDesEncrypt(orig, key string) (string, error) {
 }
 
 // 3des 解密
-func TipleDesDecrypt(crypted, key string) (string, error) {
+func TripleDesDecrypt(crypted, key string) (string, error) {
 	if crypted == "" {
 		return "", errors.New("ciphertext cannot be null")
 	}
@@ -150,18 +149,22 @@ func pkcs7UnPadding_aes(origData []byte) []byte {
 }
 
 // des加密
+// 密钥长度必须为8位
 func DesEncrypt(orig, key string) (string, error) {
 	if orig == "" {
 		return "", errors.New("Encryption objects cannot be null")
 	}
-	if len(key) != 24 {
+	if len(key) != 8 {
 		return "", errors.New("The secret key length of DES must be 8 bits")
 	}
 	// 将加密内容和秘钥转成字节数组
 	origData := []byte(orig)
 	k := []byte(key)
 	// 秘钥分组
-	block, _ := des.NewCipher(k)
+	block, err := des.NewCipher(k)
+	if err != nil {
+		return "", err
+	}
 	//将明文按秘钥的长度做补全操作
 	origData = pkcs5Padding_des(origData, block.BlockSize())
 	//设置加密方式－CBC
@@ -181,7 +184,7 @@ func DesDecrypt(data, key string) (string, error) {
 	if data == "" {
 		return "", errors.New("Encryption objects cannot be null")
 	}
-	if len(key) != 24 {
+	if len(key) != 8 {
 		return "", errors.New("The secret key length of DES must be 8 bits")
 	}
 	k := []byte(key)
@@ -346,7 +349,7 @@ func (r *Rsa) Verify(data []byte, sign []byte, sHash crypto.Hash) bool {
 }
 
 // CreateKeys 生成pkcs1 格式的公钥私钥
-func (r *Rsa) CreateKeys(keyLength int) (privateKey, publicKey string) {
+func (r *Rsa) CreateKeys(keyLength int) (privateKey, publicKey string, err error) {
 	//根据 随机源 与 指定位数，生成密钥对。rand.Reader = 密码强大的伪随机生成器的全球共享实例
 	rsaPrivateKey, err := rsa.GenerateKey(rand.Reader, keyLength)
 	if err != nil {
@@ -418,14 +421,10 @@ func Sha1(str string) string {
 }
 
 // binary true 返回二进制
-func HmacSHA1(key string, data string, binary bool) interface{} {
+func HmacSHA1(key string, data string) []byte {
 	mac := hmac.New(sha1.New, []byte(key))
 	mac.Write([]byte(data))
-	if !binary {
-		return hex.EncodeToString(mac.Sum(nil))
-	} else {
-		return mac.Sum(nil)
-	}
+	return mac.Sum(nil)
 }
 
 func Sha2(str, param string) string {
@@ -494,14 +493,7 @@ func sha3_224(str string) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-func EncryptHmacSHA256(ak, sk string) (sign, ts string) {
-	ts = time.Now().UTC().Format("20060102150405000")
-	h := hmac.New(sha256.New, []byte(sk))
-	h.Write([]byte(ts + ak))
-	sign = base64.StdEncoding.EncodeToString(h.Sum(nil))
-	return
-}
-
+// Tea加密
 func TeaEncrypt(plainText [2]uint32, key [4]uint32) [2]uint32 {
 	delta := uint32(0x9e3779b9)
 	sum := uint32(0)
@@ -518,7 +510,7 @@ func TeaEncrypt(plainText [2]uint32, key [4]uint32) [2]uint32 {
 	return [2]uint32{left, right}
 }
 
-// 解密函数
+// Tea解密
 func TeaDecrypt(cipherText [2]uint32, key [4]uint32) [2]uint32 {
 	delta := uint32(0x9e3779b9)
 	sum := delta * 32
