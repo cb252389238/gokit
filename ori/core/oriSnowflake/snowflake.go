@@ -11,13 +11,14 @@ var (
 	err       error
 )
 
-func New(node int64) (*snowflake2.Node, error) {
+func New(node int64) error {
 	once.Do(func() {
 		snowflake, err = snowflake2.NewNode(node)
 	})
-	return snowflake, err
+	return err
 }
 
+// 获取雪花id
 func GetSnowId() string {
 	return snowflake.Generate().String()
 }

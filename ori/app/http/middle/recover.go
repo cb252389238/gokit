@@ -12,13 +12,13 @@ import (
 
 func printStackTrace(err any) string {
 	buf := new(bytes.Buffer)
-	fmt.Fprintf(buf, "%v\n", err)
+	fmt.Fprintf(buf, "%v", err)
 	for i := 1; ; i++ {
 		_, file, line, ok := runtime.Caller(i)
 		if !ok {
 			break
 		}
-		fmt.Fprintf(buf, "%s:%dv \n", file, line)
+		fmt.Fprintf(buf, "%s:%d\n", file, line)
 	}
 	return buf.String()
 }
@@ -28,7 +28,7 @@ func Recover() gin.HandlerFunc {
 		defer func() {
 			if r := recover(); r != nil {
 				msg := printStackTrace(r)
-				oriLog.LogError("异常:%v", msg)
+				oriLog.Error("异常:%v", msg)
 				var errorCode any
 				switch v := r.(type) {
 				case oerror.Error:

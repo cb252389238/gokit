@@ -3,6 +3,7 @@
     "99997": "Frequent operations",
     "99998": "System busy",
     "99999": "Unknown error",
-    "99996": "params is error"
+    "99996": "params is error",
+    "10000": "user not found"
 }
   

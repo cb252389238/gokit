@@ -46,21 +46,21 @@ func Run(oriEngine *engine.OriEngine) {
 	}
 	if *graceful {
 		// 子进程监听父进程传递的 socket 描述符
-		oriLog.LogInfo("平滑重启-[子进程监听文件描述]")
+		oriLog.Info("平滑重启-[子进程监听文件描述]")
 		// 子进程的 0, 1, 2 是预留给标准输入、标准输出、错误输出
 		f := os.NewFile(3, "")
 		listener, err = net.FileListener(f)
 	} else {
-		oriLog.LogInfo("正常启动-[监听信号]")
+		oriLog.Info("正常启动-[监听信号]")
 		listener, err = net.Listen("tcp", server.Addr)
 	}
 	if err != nil {
-		oriLog.LogError("listener error: %+v", err)
+		oriLog.Error("listener error: %+v", err)
 		return
 	}
 	go func() {
 		if err := server.Serve(listener); err != nil {
-			oriLog.LogInfo("http服务退出,err:%+v", err)
+			oriLog.Info("http服务退出,err:%+v", err)
 			return
 		}
 	}()
@@ -71,28 +71,28 @@ func signalHandle(oriEngine *engine.OriEngine, server *http.Server) {
 	for {
 		select {
 		case <-oriEngine.Context.Done():
-			oriLog.LogInfo("http服务退出")
+			oriLog.Info("http服务退出")
 			return
 		case sig := <-oriEngine.HttpSignal:
 			ctx, _ := context.WithCancel(context.Background())
 			switch sig {
 			case oriSignal.SIGUSR1: //优雅退出
 				if err := server.Shutdown(ctx); err != nil {
-					oriLog.LogError(err.Error())
+					oriLog.Error(err.Error())
 					break
 				}
-				oriLog.LogInfo("http服务优雅退出")
+				oriLog.Info("http服务优雅退出")
 				reqEntityWg.Wait() //登陆用户连接全部断开
 				oriEngine.Signal <- syscall.SIGINT
 			case oriSignal.SIGUSR2: //平滑重启
 				err := reload() // 执行热重启函数
 				if err != nil {
-					oriLog.LogError("http服务reload error: %v", err)
+					oriLog.Error("http服务reload error: %v", err)
 					break
 				}
-				oriLog.LogInfo("http服务热重启")
+				oriLog.Info("http服务热重启")
 				if err := server.Shutdown(ctx); err != nil {
-					oriLog.LogError(err.Error())
+					oriLog.Error(err.Error())
 					break
 				}
 				reqEntityWg.Wait() //用户连接全部断开

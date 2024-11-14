@@ -28,14 +28,15 @@ func RequestLogger() gin.HandlerFunc {
 		if len(reqBody) > 0 {
 			c.Request.Body = io.NopCloser(bytes.NewBuffer(reqBody))
 		}
-		oriLog.LogInfo("【Request】:| %s | %s | %s | %s", c.ClientIP(), c.Request.Method, c.Request.RequestURI, reqBody)
+		oriLog.Info("【Request】:| %s | %s | %s | %s", c.ClientIP(), c.Request.Method, c.Request.RequestURI, reqBody)
+
 		// 执行请求处理程序和其他中间件函数
 		c.Next()
 		// 记录回包内容和处理时间
 		end := time.Now()
 		latency := end.Sub(start)
 		respBody := string(crw.body.Bytes())
-		oriLog.LogInfo("【Response】:| %s | %s | %s | %s | (%v)\n", c.ClientIP(), c.Request.Method, c.Request.RequestURI, respBody, latency)
+		oriLog.Info("【Response】:| %s | %s | %s | %s | (%v)\n", c.ClientIP(), c.Request.Method, c.Request.RequestURI, respBody, latency)
 	}
 }
 

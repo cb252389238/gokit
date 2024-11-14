@@ -170,9 +170,9 @@ func (k *kafka) run() {
 				return
 			case <-time.After(time.Second * 3):
 				if err := k.consumer.Consume(k.context, []string{k.topic}, k.consume); err != nil {
-					oriLog.LogError("kafka再平衡计算错误 err:%+v,topic:%s", err, k.topic)
+					oriLog.Error("kafka再平衡计算错误 err:%+v,topic:%s", err, k.topic)
 				} else {
-					oriLog.LogInfo("kafka再平衡计算 topic:%+v", k.topic)
+					oriLog.Info("kafka再平衡计算 topic:%+v", k.topic)
 				}
 			}
 		}

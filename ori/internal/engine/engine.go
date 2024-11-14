@@ -2,18 +2,15 @@ package engine
 
 import (
 	"context"
-	"fmt"
-	"github.com/blinkbean/dingtalk"
 	cache2 "ori/core/oriCache"
 	"ori/core/oriConfig"
 	"ori/core/oriDb"
-	log2 "ori/core/oriLog"
-	pool2 "ori/core/oriPool"
+	"ori/core/oriLog"
+	"ori/core/oriPool"
 	"ori/core/oriRedis"
 	"ori/core/oriSnowflake"
 	"ori/core/oriTools/cache"
 	"ori/core/oriTools/easy"
-	"ori/core/oriTools/snowflake"
 	"os"
 	"sync"
 )
@@ -26,35 +23,38 @@ type OriEngine struct {
 	L          *sync.RWMutex
 	Context    context.Context
 	Cancel     context.CancelFunc
-	Db         *oriDb.MysqlSets
-	Redis      *oriRedis.RedisSets
-	Pool       pool2.Pool //通用连接池
-	Log        *log2.LocalLogger
 	Cache      *cache.Cache
-	WebHook    *dingtalk.DingTalk
-	Snowflake  *snowflake.Node
 }
 
 func NewOriEngine() *OriEngine {
-	webHookCli := dingtalk.InitDingTalkWithSecret(oriConfig.GetHotConf().WebHookToken, oriConfig.GetHotConf().WebHookSecret)
+	oriLog.NewLog() //初始化日志
+	//初始化上下文
 	cancel, cancelFunc := context.WithCancel(context.Background())
-	var redis *oriRedis.RedisSets
+	//初始化redis
 	if len(oriConfig.GetHotConf().Redis) >= 1 {
-		redis = oriRedis.NewRedis()
-	} else {
-		redis = nil
+		oriRedis.New()
 	}
-	var db *oriDb.MysqlSets
 	if len(oriConfig.GetHotConf().Mysql) >= 1 {
-		db = oriDb.NewDb()
-	} else {
-		db = nil
+		oriDb.New()
 	}
 	ip := easy.GetLocalIp()
 	intIp := easy.Ipv4StringToInt(ip)
 	node := intIp % 1000
-	fmt.Printf("ip:%s,intIp:%d,node:%d\r\n", ip, intIp, node)
-	snow, err := oriSnowflake.New(node)
+	err := oriSnowflake.New(node)
+	if err != nil {
+		panic(err)
+	}
+	_, err = oriPool.New(
+		func() (interface{}, error) {
+			return 1, nil
+		},
+		func(v interface{}) error {
+			return nil
+		},
+		10,  //初始化连接数
+		50,  //最大空闲连接数
+		500, //最大并发连接数
+	)
 	if err != nil {
 		panic(err)
 	}
@@ -66,23 +66,7 @@ func NewOriEngine() *OriEngine {
 		L:          &sync.RWMutex{},
 		Context:    cancel,
 		Cancel:     cancelFunc,
-		Db:         db,
-		Redis:      redis,
-		Pool: pool2.NewPool(
-			func() (interface{}, error) {
-				return 1, nil
-			},
-			func(v interface{}) error {
-				return nil
-			},
-			100,
-			100,
-			1000,
-		),
-		Log:       log2.NewLog(),
-		Cache:     cache2.New(),
-		WebHook:   webHookCli,
-		Snowflake: snow,
+		Cache:      cache2.New(),
 	}
 	return ctx
 }

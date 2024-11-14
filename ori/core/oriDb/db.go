@@ -39,7 +39,7 @@ func (r *MysqlSets) Db(key ...string) *gorm.DB {
 	return nil
 }
 
-func NewDb() *MysqlSets {
+func New() *MysqlSets {
 	once.Do(func() {
 		conf := oriConfig.GetHotConf()
 		//载入mysql集合
@@ -64,13 +64,4 @@ func NewDb() *MysqlSets {
 
 	})
 	return sets
-}
-
-func Db(keys ...string) *gorm.DB {
-	db := NewDb()
-	key := "default"
-	if len(keys) > 0 {
-		key = keys[0]
-	}
-	return db.Db(key)
 }

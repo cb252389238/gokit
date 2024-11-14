@@ -1,9 +1,10 @@
 package model
 
-type KhUser struct {
-	ID int `json:"id" gorm:"column:id"` // 用户ID
+type User struct {
+	ID   string `json:"id" gorm:"column:id"` // 用户ID
+	Name string `json:"name" gorm:"column:name"`
 }
 
-func (m *KhUser) TableName() string {
-	return "kh_user"
+func (m *User) TableName() string {
+	return "user"
 }
