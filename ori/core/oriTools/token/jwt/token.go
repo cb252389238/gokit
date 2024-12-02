@@ -6,10 +6,7 @@ import (
 
 // Claim是一些实体（通常指的用户）的状态和额外的元数据
 type Claims struct {
-	UserId    string `json:"user_id"`
-	UnionId   string `json:"union_id"`
-	ImServer  string `json:"im_server"`
-	WsAddress string `json:"ws_address"`
+	UserId string `json:"user_id"`
 	gojwt.StandardClaims
 }
 

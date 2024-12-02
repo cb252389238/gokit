@@ -7,26 +7,23 @@ const (
 	maxDeletion   = 10000
 )
 
-// SafeMap provides a map alternative to avoid memory leak.
-// This implementation is not needed until issue below fixed.
-// https://github.com/golang/go/issues/20135
 type SafeMap struct {
 	lock        sync.RWMutex
 	deletionOld int
 	deletionNew int
-	dirtyOld    map[interface{}]interface{}
-	dirtyNew    map[interface{}]interface{}
+	dirtyOld    map[any]any
+	dirtyNew    map[any]any
 }
 
-// NewSafeMap returns a SafeMap.
+// 创建一个安全的map
 func NewSafeMap() *SafeMap {
 	return &SafeMap{
-		dirtyOld: make(map[interface{}]interface{}),
-		dirtyNew: make(map[interface{}]interface{}),
+		dirtyOld: make(map[any]any),
+		dirtyNew: make(map[any]any),
 	}
 }
 
-// Del deletes the value with the given key from m.
+// 从缓存中删除一个元素
 func (m *SafeMap) Del(key interface{}) {
 	m.lock.Lock()
 	if _, ok := m.dirtyOld[key]; ok {
@@ -42,21 +39,21 @@ func (m *SafeMap) Del(key interface{}) {
 		}
 		m.dirtyOld = m.dirtyNew
 		m.deletionOld = m.deletionNew
-		m.dirtyNew = make(map[interface{}]interface{})
+		m.dirtyNew = make(map[any]any)
 		m.deletionNew = 0
 	}
 	if m.deletionNew >= maxDeletion && len(m.dirtyNew) < copyThreshold {
 		for k, v := range m.dirtyNew {
 			m.dirtyOld[k] = v
 		}
-		m.dirtyNew = make(map[interface{}]interface{})
+		m.dirtyNew = make(map[any]any)
 		m.deletionNew = 0
 	}
 	m.lock.Unlock()
 }
 
-// Get gets the value with the given key from m.
-func (m *SafeMap) Get(key interface{}) (interface{}, bool) {
+// 获取一个元素
+func (m *SafeMap) Get(key any) (any, bool) {
 	m.lock.RLock()
 	defer m.lock.RUnlock()
 
@@ -69,7 +66,7 @@ func (m *SafeMap) Get(key interface{}) (interface{}, bool) {
 }
 
 // Set sets the value into m with the given key.
-func (m *SafeMap) Set(key, value interface{}) {
+func (m *SafeMap) Set(key, value any) {
 	m.lock.Lock()
 	if m.deletionOld <= maxDeletion {
 		if _, ok := m.dirtyNew[key]; ok {
