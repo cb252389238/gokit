@@ -1,3 +1,3 @@
 module imMerge
 
-go 1.17
+go 1.21

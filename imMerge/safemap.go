@@ -3,31 +3,28 @@ package imMerge
 import "sync"
 
 const (
-	copyThreshold = 1000
-	maxDeletion   = 10000
+	copyThreshold = 1000  //复制阈值
+	maxDeletion   = 10000 //最大删除数量
 )
 
-// SafeMap provides a map alternative to avoid memory leak.
-// This implementation is not needed until issue below fixed.
-// https://github.com/golang/go/issues/20135
 type SafeMap struct {
-	lock        sync.RWMutex
+	lock        sync.RWMutex //锁
 	deletionOld int
 	deletionNew int
-	dirtyOld    map[interface{}]interface{}
-	dirtyNew    map[interface{}]interface{}
+	dirtyOld    map[any]any
+	dirtyNew    map[any]any
 }
 
-// NewSafeMap returns a SafeMap.
+// 初始化SafeMap
 func NewSafeMap() *SafeMap {
 	return &SafeMap{
-		dirtyOld: make(map[interface{}]interface{}),
-		dirtyNew: make(map[interface{}]interface{}),
+		dirtyOld: make(map[any]any),
+		dirtyNew: make(map[any]any),
 	}
 }
 
 // Del deletes the value with the given key from m.
-func (m *SafeMap) Del(key interface{}) {
+func (m *SafeMap) Del(key any) {
 	m.lock.Lock()
 	if _, ok := m.dirtyOld[key]; ok {
 		delete(m.dirtyOld, key)
@@ -42,34 +39,32 @@ func (m *SafeMap) Del(key interface{}) {
 		}
 		m.dirtyOld = m.dirtyNew
 		m.deletionOld = m.deletionNew
-		m.dirtyNew = make(map[interface{}]interface{})
+		m.dirtyNew = make(map[any]any)
 		m.deletionNew = 0
 	}
 	if m.deletionNew >= maxDeletion && len(m.dirtyNew) < copyThreshold {
 		for k, v := range m.dirtyNew {
 			m.dirtyOld[k] = v
 		}
-		m.dirtyNew = make(map[interface{}]interface{})
+		m.dirtyNew = make(map[any]any)
 		m.deletionNew = 0
 	}
 	m.lock.Unlock()
 }
 
-// Get gets the value with the given key from m.
-func (m *SafeMap) Get(key interface{}) (interface{}, bool) {
+// 获取值
+func (m *SafeMap) Get(key any) (any, bool) {
 	m.lock.RLock()
 	defer m.lock.RUnlock()
-
 	if val, ok := m.dirtyOld[key]; ok {
 		return val, true
 	}
-
 	val, ok := m.dirtyNew[key]
 	return val, ok
 }
 
-// Set sets the value into m with the given key.
-func (m *SafeMap) Set(key, value interface{}) {
+// 设置值
+func (m *SafeMap) Set(key, value any) {
 	m.lock.Lock()
 	if m.deletionOld <= maxDeletion {
 		if _, ok := m.dirtyNew[key]; ok {
@@ -87,7 +82,7 @@ func (m *SafeMap) Set(key, value interface{}) {
 	m.lock.Unlock()
 }
 
-// Size returns the size of m.
+// 返回元素数量
 func (m *SafeMap) Size() int {
 	m.lock.RLock()
 	size := len(m.dirtyOld) + len(m.dirtyNew)

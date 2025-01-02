@@ -6,6 +6,7 @@ func TestMbStrlen(t *testing.T) {
 	t.Log(MbStrlen("你好"))
 	t.Log(MbStrlen("你好，我是中国人"))
 	t.Log(MbStrlen("你好，我是中国人，我是中国人,abc"))
+	t.Log(len("你好"))
 }
 
 func TestStrRev(t *testing.T) {
