@@ -1,6 +1,9 @@
 package easy
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func TestAbs(t *testing.T) {
 	type args struct {
@@ -68,4 +71,17 @@ func TestMin(t *testing.T) {
 	t.Log(Min(1.0, 2.0, 3.0, 4.0, 5.0))
 	t.Log(Min(1.0, 2.0, 3.0, 4.0, 5.0, 6.0))
 	t.Log(Min(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0))
+}
+
+func TestGenerateRandomPrime(t *testing.T) {
+	prime, err := GenerateRandomPrime(32)
+	if err == nil {
+		fmt.Println(IsPrime(prime))
+	}
+}
+
+func BenchmarkGenerateRandomPrime(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_, _ = GenerateRandomPrime(32)
+	}
 }

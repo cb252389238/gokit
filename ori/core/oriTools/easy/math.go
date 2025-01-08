@@ -1,7 +1,9 @@
 package easy
 
 import (
+	"crypto/rand"
 	"math"
+	"math/big"
 )
 
 // 根据坐标计算角度
@@ -64,4 +66,18 @@ func Min[T mathVal](nums ...T) T {
 		max = T(math.Min(float64(max), float64(nums[i])))
 	}
 	return max
+}
+
+// isPrime 判断一个数字是否是质数
+func IsPrime(n *big.Int) bool {
+	return n.ProbablyPrime(0)
+}
+
+// generateRandomPrime 生成指定位数的随机质数
+func GenerateRandomPrime(bitLength int) (*big.Int, error) {
+	prime, err := rand.Prime(rand.Reader, bitLength)
+	if err != nil {
+		return nil, err
+	}
+	return prime, nil
 }
