@@ -73,3 +73,8 @@ func Sleep(t int) {
 func Usleep(t int64) {
 	time.Sleep(time.Duration(t) * time.Microsecond)
 }
+
+// 睡眠纳秒
+func NanoSleep(t int64) {
+	time.Sleep(time.Duration(t) * time.Nanosecond)
+}
