@@ -78,3 +78,22 @@ func Usleep(t int64) {
 func NanoSleep(t int64) {
 	time.Sleep(time.Duration(t) * time.Nanosecond)
 }
+
+// 获取指定时间周的开始时间和结束时间
+func GetWeekStartAndEndTime(t time.Time) (string, string) {
+	now := t
+	weekStart := now.AddDate(0, 0, -int(now.Weekday())+1)
+	weekStart = time.Date(weekStart.Year(), weekStart.Month(), weekStart.Day(), 0, 0, 0, 0, weekStart.Location())
+	weekEnd := weekStart.AddDate(0, 0, 7).Add(-time.Nanosecond)
+	return weekStart.Format("2006-01-02"), weekEnd.Format("2006-01-02")
+}
+
+// 获取指定时间月的开始时间和结束时间
+func GetMonthStartTimeAndEndTime(t time.Time) (string, string) {
+	now := t
+	monthStart := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
+	nextMonth := monthStart.AddDate(0, 1, 0)
+	monthEnd := nextMonth.Add(-time.Nanosecond)
+
+	return monthStart.Format("2006-01-02 15:04:05"), monthEnd.Format("2006-01-02 15:04:05")
+}
