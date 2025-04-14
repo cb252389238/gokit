@@ -25,7 +25,7 @@ type message struct {
 type ImMsg interface {
 	GetRoomId() string
 	GetUid() int
-	GetData() map[string]interface{}
+	GetData() map[string]any
 }
 
 func NewMsgStore() *Store {
@@ -58,15 +58,15 @@ func (s *Store) Set(value ImMsg) {
 	s.setLastOffset(value.GetRoomId(), offset)
 }
 
-func (s *Store) Get(key string, uid, offset int) ([]map[string]interface{}, int) {
+func (s *Store) Get(key string, uid, offset int) ([]map[string]any, int) {
 	s.l.RLock()
 	defer s.l.RUnlock()
 	messageAny, b := s.Bucket.Get(key)
 	if !b {
-		return []map[string]interface{}{}, offset
+		return []map[string]any{}, offset
 	}
 	messageArr := messageAny.(*[ARR_LEN]message)
-	data := []map[string]interface{}{}
+	data := []map[string]any{}
 	for i := 0; i < MSG_LEN; i++ {
 		last := offset - 1
 		if offset == 0 {
