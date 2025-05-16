@@ -27,7 +27,7 @@ type Config struct {
 
 type MessageData struct {
 	groupId string
-	data    interface{}
+	data    any
 }
 
 func New(conf Config) *Engine {
@@ -53,19 +53,19 @@ func (e *Engine) run() {
 			return
 		case data := <-e.data:
 			if ch1, ok := e.groupIdPool.Get(data.groupId); !ok {
-				e.groupIdPool.Set(data.groupId, make(chan interface{}, 10000))
+				e.groupIdPool.Set(data.groupId, make(chan any, 10000))
 				if ch2, ok := e.groupIdPool.Get(data.groupId); ok {
-					ch2.(chan interface{}) <- data.data
+					ch2.(chan any) <- data.data
 				}
 				go e.merge(data.groupId)
 			} else {
-				ch1.(chan interface{}) <- data.data
+				ch1.(chan any) <- data.data
 			}
 		}
 	}
 }
 
-func (e *Engine) Message(groupId string, data interface{}) {
+func (e *Engine) Message(groupId string, data any) {
 	m := MessageData{
 		groupId: groupId,
 		data:    data,
@@ -76,7 +76,7 @@ func (e *Engine) Message(groupId string, data interface{}) {
 func (e *Engine) merge(groupId string) {
 	defer fmt.Printf("merge: 协程退出,groupId:%s\r\n", groupId)
 	msgNum := 0
-	mergeData := []interface{}{}
+	mergeData := []any{}
 	tickTimeOut := time.NewTicker(time.Millisecond * time.Duration(e.timeOut))
 	tickMergeThreshold := time.NewTicker(time.Millisecond * time.Duration(e.mergeTime))
 	for {
@@ -99,15 +99,15 @@ func (e *Engine) merge(groupId string) {
 				groupId: groupId,
 				data:    mergeData,
 			}
-			mergeData = []interface{}{}
-		case v := <-chmsg.(chan interface{}):
+			mergeData = []any{}
+		case v := <-chmsg.(chan any):
 			msgNum++
 			if len(mergeData) >= e.mergeThreshold {
 				e.Result <- MessageData{
 					groupId: groupId,
 					data:    mergeData,
 				}
-				mergeData = []interface{}{}
+				mergeData = []any{}
 
 			}
 			mergeData = append(mergeData, v)
