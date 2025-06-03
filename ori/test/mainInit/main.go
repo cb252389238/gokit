@@ -7,7 +7,6 @@ import (
 	"ori/app/http"
 	"ori/app/ws"
 	"ori/core/oriConfig"
-	"ori/core/oriMonitor"
 	"ori/core/oriSignal"
 	eng "ori/internal/engine"
 	"ori/typedef"
@@ -27,8 +26,6 @@ func main() {
 	oriConfig.Load(configPath)   //载入配置文件
 	go oriConfig.Listen(10)      //监听配置文件变化
 	engine := eng.NewOriEngine() //初始化项目资源
-	engine.Wg.Add(1)
-	go oriMonitor.Monitor(engine) //监控通知
 	engine.Wg.Add(1)
 	go http.Run(engine) //http服务
 	engine.Wg.Add(1)
