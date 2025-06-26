@@ -20,3 +20,8 @@ func GetWeekStartAndEndTime(t time.Time) (string, string) {
 	weekEnd := weekStart.AddDate(0, 0, 7).Add(-time.Nanosecond)
 	return weekStart.Format("2006-01-02"), weekEnd.Format("2006-01-02")
 }
+
+// 检查两个时间段是否有重叠
+func CheckTimeOverlap(startA, endA, startB, endB time.Time) bool {
+	return !(endA.Before(startB) || endB.Before(startA))
+}
