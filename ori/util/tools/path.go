@@ -1,6 +1,7 @@
 package tools
 
 import (
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -30,4 +31,19 @@ func GetRootPath() string {
 	} else {
 		return getUserBinPath()
 	}
+}
+
+// 去除url保留path
+func ParseReplaceUrl(urlPath string) string {
+	parse, _ := url.Parse(urlPath)
+	path := parse.Path
+	if parse.RawQuery != "" {
+		path += "?" + parse.RawQuery
+	}
+	if len(path) > 0 {
+		if path[0] == '/' {
+			path = path[1:]
+		}
+	}
+	return path
 }
