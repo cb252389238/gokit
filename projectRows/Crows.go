@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path"
 	"strings"
 	"sync"
@@ -46,7 +46,7 @@ func main() {
 }
 
 func GetRowsNum(file string) {
-	data, err := ioutil.ReadFile(file)
+	data, err := os.ReadFile(file)
 	if err != nil {
 		return
 	}
@@ -64,7 +64,7 @@ func GetRowsNum(file string) {
 }
 
 func GetAllFileName(paths string) {
-	files, err := ioutil.ReadDir(paths)
+	files, err := os.ReadDir(paths)
 	if err != nil {
 		fmt.Println(err)
 		return
