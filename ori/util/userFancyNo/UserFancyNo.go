@@ -9,6 +9,59 @@ import (
 type UserFancyNo struct {
 }
 
+var (
+	fancyNoTypesMapLevel = map[string]int{
+		"AAAA":     5,
+		"AAAAA":    5,
+		"AAAAAA":   5,
+		"AAAAAAA":  5,
+		"AAAAAAAA": 5,
+		"ABABAB":   4,
+		"ABBBABBB": 4,
+		"BBBABBBA": 4,
+		"ABCDEFG":  4,
+		"GFEDCBA":  4,
+		"ABCDEAAA": 4,
+		"EDCBAAAA": 4,
+		"ABCDEFAA": 4,
+		"FEDCBAAA": 4,
+		"ABCDEABC": 4,
+		"ABCDECBA": 4,
+		"EDCBAABC": 3,
+		"EDCBACBA": 3,
+		"ABCDEFAB": 4,
+		"ABCDEFBA": 4,
+		"FEDCBAAB": 3,
+		"FEDCBABA": 3,
+		"AAAABCDE": 4,
+		"AAAEDCBA": 4,
+		"AAABCDEF": 4,
+		"AAFEDCBA": 3,
+		"ABCABCDE": 4,
+		"ABCEDCBA": 4,
+		"CBAABCDE": 4,
+		"CBAEDCBA": 3,
+		"ABABCDEF": 4,
+		"ABFEDCBA": 3,
+		"BAABCDEF": 4,
+		"BAFEDCBA": 3,
+	}
+)
+
+func (u *UserFancyNo) GetFancyNoLevel(types string) int {
+	return fancyNoTypesMapLevel[types]
+}
+
+func (u *UserFancyNo) GetFancyNoTypesByLevel(level int) (res []string) {
+	res = []string{}
+	for k, v := range fancyNoTypesMapLevel {
+		if v == level {
+			res = append(res, k)
+		}
+	}
+	return
+}
+
 // 判断是否为靓号
 func (u *UserFancyNo) IsFancyNo(idStr string) (bool, string, error) {
 	// 规则0：校验是否为8位数字
