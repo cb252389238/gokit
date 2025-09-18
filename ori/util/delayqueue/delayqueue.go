@@ -59,12 +59,28 @@ func (dq *DelayQueue) AddTask(task Task) error {
 	return err
 }
 
+// 移除延时任务
+func (dq *DelayQueue) RemoveTask(id string) error {
+	if len(id) == 0 {
+		return errors.New("id is empty")
+	}
+	_, err := dq.client.ZRem(dq.name, id).Result()
+	if err != nil {
+		return err
+	}
+	_, err = dq.client.Del(dq.getTaskKey(id)).Result()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // 获取到期的任务
 func (dq *DelayQueue) Poll() ([]Task, error) {
 	now := time.Now().Unix()
 	// 获取所有score小于等于当前时间戳的任务
 	taskIds, err := dq.client.ZRangeByScore(dq.name, redis.ZRangeBy{
-		Min: "0",
+		Min: "-inf",
 		Max: cast.ToString(now),
 	}).Result()
 	if err != nil {
@@ -82,23 +98,13 @@ func (dq *DelayQueue) Poll() ([]Task, error) {
 		if err != nil {
 			continue
 		}
-		result, err := dq.client.Get(dq.getTaskKey(taskId)).Result()
-		if err != nil || result == "" {
-			unlock()
-			continue
-		}
+		result, _ := dq.client.Get(dq.getTaskKey(taskId)).Result()
 		t := Task{}
-		err = json.Unmarshal([]byte(result), &t)
-		if err != nil {
-			unlock()
-			continue
+		if result != "" {
+			_ = json.Unmarshal([]byte(result), &t)
 		}
-		delNum, _ := dq.client.Del(dq.getTaskKey(taskId)).Result()
-		if delNum == 0 {
-			unlock()
-			continue
-		}
-		delNum, _ = dq.client.ZRem(dq.name, taskId).Result()
+
+		delNum, _ := dq.client.ZRem(dq.name, taskId).Result()
 		if delNum == 0 {
 			unlock()
 			continue
@@ -119,8 +125,10 @@ func (dq *DelayQueue) consumer() {
 			if err != nil {
 				continue
 			}
-			for _, task := range tasks {
-				dq.C <- task
+			if len(tasks) > 0 {
+				for _, task := range tasks {
+					dq.C <- task
+				}
 			}
 		}
 	}
